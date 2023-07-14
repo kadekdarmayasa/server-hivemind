@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  username  String   @db.VarChar(100)
+  password  String   @db.VarChar(255)
+  role      Role     @relation(fields: [roleId], references: [id])
+  roleId    Int
+  photo     String?  @db.VarChar(100)
+  email     String?  @db.VarChar(100)
+  linkedin  String?  @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Blog      Blog[]
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(100)
+  slug        String   @db.VarChar(100)
+  description String   @db.Text
+  content     String   @db.Text
+  thumbnail   String   @db.VarChar(100)
+  published   Boolean  @default(false)
+  publishedAt DateTime @map("published_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  service     Service? @relation(fields: [serviceId], references: [id])
+  serviceId   Int?
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+}
+
+model Service {
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  description String      @db.Text
+  thumbnail   String      @db.VarChar(100)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  Blog        Blog[]
+  Portfolio   Portfolio[]
+}
+
+model Portfolio {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  thumbnail   String   @db.VarChar(100)
+  orientation String   @db.VarChar(100)
+  service     Service  @relation(fields: [serviceId], references: [id])
+  serviceId   Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+}
+
+model Testimony {
+  id          Int    @id @default(autoincrement())
+  clientName  String @map("client_name") @db.VarChar(100)
+  clientPhoto String @map("client_photo") @db.VarChar(100)
+  occupation  String @db.VarChar(100)
+  message     String @db.Text
+  rate        Float  @db.Double
+}
+
+model Client {
+  id   Int    @id @default(autoincrement())
+  logo String @db.VarChar(100)
+  name String @db.VarChar(100)
+}
+
+model FAQ {
+  id       Int    @id @default(autoincrement())
+  question String @db.VarChar(100)
+  answer   String @db.Text
+}
+
+model Subscriber {
+  id    Int    @id @default(autoincrement())
+  email String @db.VarChar(100)
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(100)
+  User User[]
+}
+
+// enum TeamRole {
+//   WebDeveloper
+//   MobileAppDeveloper
+//   SocialMediaManager
+//   GraphicDesigner
+//   SEOSpecialist
+//   ContentCreator
+//   DigitalStrategist
+//   MarketingDirector
+//   SalesManager
+//   Admin
+// }
+
+// Content creator responsible for create content
+// While admin is responsible to accept or reject the content
