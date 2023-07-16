@@ -1,10 +1,12 @@
 import { db } from '../lib/server.db';
+import bcrypt from 'bcryptjs';
 
 type User = {
   name: string;
   username: string;
   password: string;
   roleId: number;
+  photo: string;
 };
 
 type Role = {
@@ -14,6 +16,7 @@ type Role = {
 async function seed() {
   const users = await getUsers();
   const roles = await getRoles();
+  const salt = await bcrypt.genSalt(8);
 
   for (const role of roles) {
     await db.role.create({
@@ -23,7 +26,10 @@ async function seed() {
 
   for (const user of users) {
     await db.user.create({
-      data: user,
+      data: {
+        ...user,
+        password: await bcrypt.hash(user.password, salt),
+      },
     });
   }
 }
@@ -37,12 +43,14 @@ async function getUsers(): Promise<User[]> {
       username: 'darmayasa',
       password: 'darma123',
       roleId: 1,
+      photo: 'default-profile.png',
     },
     {
       name: 'I Kadek Anggara Putra',
       username: 'anggara',
       password: 'anggara123',
       roleId: 2,
+      photo: 'default-profile.png',
     },
   ];
 }

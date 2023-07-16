@@ -10,13 +10,13 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(100)
-  username  String   @db.VarChar(100)
+  username  String   @unique @db.VarChar(100)
   password  String   @db.VarChar(255)
   role      Role     @relation(fields: [roleId], references: [id])
   roleId    Int
   photo     String?  @db.VarChar(100)
-  email     String?  @db.VarChar(100)
-  linkedin  String?  @db.VarChar(100)
+  email     String?  @unique @db.VarChar(100)
+  linkedin  String?  @unique @db.VarChar(100)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   Blog      Blog[]
@@ -25,7 +25,7 @@ model User {
 model Blog {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(100)
-  slug        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
   description String   @db.Text
   content     String   @db.Text
   thumbnail   String   @db.VarChar(100)
@@ -41,7 +41,7 @@ model Blog {
 
 model Service {
   id          Int         @id @default(autoincrement())
-  name        String      @db.VarChar(100)
+  name        String      @unique @db.VarChar(100)
   description String      @db.Text
   thumbnail   String      @db.VarChar(100)
   createdAt   DateTime    @default(now()) @map("created_at")
