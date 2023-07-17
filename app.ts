@@ -7,9 +7,9 @@ import methodOverride from 'method-override';
 import flash from 'connect-flash';
 import path from 'path';
 
-import { indexRouter } from './routes';
-import { adminRouter } from './routes/admin';
-import { authRouter } from './routes/auth';
+import { indexRouter } from './routes/index.route';
+import { adminRouter } from './routes/admin.route';
+import { authRouter } from './routes/auth.route';
 
 dotenv.config();
 
@@ -19,11 +19,9 @@ if (!process.env.PORT) {
 
 const app = express();
 
-// View Engine Setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middlewares setup
 app.use(cors());
 app.use(flash());
 app.use(

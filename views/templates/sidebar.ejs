@@ -12,30 +12,34 @@
 
   <!-- Nav Item - Dashboard -->
   <li class="nav-item active">
-    <a class="nav-link" href="index.html">
+    <% if(user.roleId === 1) { %>
+      <a class="nav-link" href="/admin">
+        <% } else { %>
+          <a class="nav-link" href="/user">
+      <% } %>
       <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a
-    >
+      <span>Dashboard</span>
+      </a>
   </li>
 
   <!-- Divider -->
   <hr class="sidebar-divider" />
 
   <!-- Heading -->
-  <div class="sidebar-heading">Interface</div>
+  <div class="sidebar-heading">Company</div>
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
     <a
       class="nav-link collapsed"
-      href="#"
+      href="javascript:void(0);"
       data-toggle="collapse"
       data-target="#collapseTwo"
       aria-expanded="true"
       aria-controls="collapseTwo"
     >
       <i class="fas fa-fw fa-cog"></i>
-      <span>Components</span>
+      <span>Subcribers</span>
     </a>
     <div
       id="collapseTwo"
@@ -44,9 +48,8 @@
       data-parent="#accordionSidebar"
     >
       <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Custom Components:</h6>
-        <a class="collapse-item" href="buttons.html">Buttons</a>
-        <a class="collapse-item" href="cards.html">Cards</a>
+        <a class="collapse-item" href="/admin/subscribers">Subscribers</a>
+        <a class="collapse-item" href="/admin/newstellers">Newstellers</a>
       </div>
     </div>
   </li>

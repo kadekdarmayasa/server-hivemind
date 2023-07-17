@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import AuthController from '../controllers/AuthController';
+import AuthController from '../controllers/auth.controller';
 
 export const authRouter = express.Router();
 
