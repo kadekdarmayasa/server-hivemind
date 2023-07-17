@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import UserModel from '../models/user.model';
 import SubscriberModel from '../models/subscriber.model';
+import FAQModel from '../models/faq.model';
 import '../types/express.session';
 
 class AdminController {
@@ -82,6 +83,73 @@ class AdminController {
     }
 
     res.redirect('/admin/subscribers');
+  }
+
+  static async faqs(req: Request, res: Response) {
+    const user = await UserModel.getUser(req.session.user!.id);
+    const faqs = await FAQModel.getAllFAQs();
+
+    res.render('admin/faqs', {
+      title: 'Hivemind | FAQs',
+      view: 'faq',
+      faqs,
+      user,
+      alert: {
+        message: req.flash('alertMessage'),
+        type: req.flash('alertType'),
+      },
+    });
+  }
+
+  static async addFAQ(req: Request, res: Response) {
+    try {
+      await FAQModel.addFAQ({
+        question: req.body.question,
+        answer: req.body.answer,
+      });
+
+      req.flash('alertMessage', 'FAQ added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/faqs');
+  }
+
+  static async deleteFAQ(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      await FAQModel.deleteFAQ(id);
+
+      req.flash('alertMessage', 'FAQ deleted successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/faqs');
+  }
+
+  static async updateFAQ(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.body.id as string, 10);
+      await FAQModel.updateFAQ({
+        id,
+        question: req.body.question,
+        answer: req.body.answer,
+      });
+
+      req.flash('alertMessage', 'FAQ updated successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/faqs');
   }
 }
 
