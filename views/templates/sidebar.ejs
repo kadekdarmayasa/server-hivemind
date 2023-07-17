@@ -11,7 +11,11 @@
   <hr class="sidebar-divider my-0" />
 
   <!-- Nav Item - Dashboard -->
+  <% if(view == "dashboard") { %>
   <li class="nav-item active">
+  <% } else { %>
+  <li class="nav-item">
+  <% } %>
     <% if(user.roleId === 1) { %>
       <a class="nav-link" href="/admin">
         <% } else { %>
@@ -29,7 +33,11 @@
   <div class="sidebar-heading">Company</div>
 
   <!-- Nav Item - Pages Collapse Menu -->
+  <% if(view == "subscriber") { %>
+  <li class="nav-item active">
+  <% } else { %>
   <li class="nav-item">
+  <% } %>
     <a
       class="nav-link collapsed"
       href="javascript:void(0);"

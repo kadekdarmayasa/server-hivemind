@@ -13,6 +13,7 @@ class AdminController {
 
     res.render('admin/dashboard', {
       title: 'Dashboard',
+      view: 'dashboard',
       user,
     });
   }
@@ -23,6 +24,7 @@ class AdminController {
 
     res.render('admin/subscribers', {
       title: 'Hivemind | Subscribers',
+      view: 'subscriber',
       alert: {
         message: req.flash('alertMessage'),
         type: req.flash('alertType'),
