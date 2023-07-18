@@ -26,7 +26,7 @@ adminRouter.get('/clients', AdminController.clients);
 adminRouter.post(
   '/clients',
   body('clientName').trim(),
-  processUpload(multer.upload.single('clientLogo')),
+  processUpload(multer.upload.single('clientLogo'), '/admin/clients'),
   AdminController.addClient,
 );
 adminRouter.delete('/clients/:id', AdminController.deleteClient);
