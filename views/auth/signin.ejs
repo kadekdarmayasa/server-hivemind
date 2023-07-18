@@ -7,7 +7,12 @@
         <div class="card-body p-0">
           <div class="p-5">
             <div class="text-center">
-              <h1 class="h3 text-gray-900 mb-4">Welcome Back!</h1>
+              <img
+                src="/public/images/hivemind-logo.svg"
+                alt="Hivemind Logo"
+                style="width: 200px"
+              />
+              <h1 class="h3 text-gray-900 mb-4 mt-4">Welcome Back!</h1>
               <%- include('../templates/alert') %>
             </div>
             <form class="user" action="/auth/signin?_method=POST" method="POST">
