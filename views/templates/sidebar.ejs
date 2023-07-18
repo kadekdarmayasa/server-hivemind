@@ -1,10 +1,7 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
   <!-- Sidebar - Brand -->
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
-    <div class="sidebar-brand-icon">
-      <img src="/public/images/hivemind-logo.svg" alt="" class="img-fluid" style="width: 30px" />
-    </div>
-    <div class="sidebar-brand-text mx-3">Hivemind</div>
+  <a class="sidebar-brand d-flex" href="">
+    <div class="sidebar-brand-text">Hivemind Admin</div>
   </a>
 
   <!-- Divider -->
@@ -62,6 +59,18 @@
     </div>
   </li>
 
+  <!-- Nav Item - Clients  -->
+  <% if(view == "client") { %>
+  <li class="nav-item active">
+  <% } else { %>
+  <li class="nav-item">
+  <% } %>
+    <a class="nav-link" href="/admin/clients">
+      <i class="fas fa-fw fa-chart-area"></i>
+      <span>Clients</span>
+    </a>
+  </li>
+
   <!-- Nav Item - Utilities Collapse Menu -->
   <li class="nav-item">
     <a
@@ -90,7 +99,7 @@
       </div>
     </div>
   </li>
-
+ 
   <hr class="sidebar-divider" />
 
   <div class="sidebar-heading">Others</div>

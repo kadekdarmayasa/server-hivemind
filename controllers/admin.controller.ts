@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import UserModel from '../models/user.model';
 import SubscriberModel from '../models/subscriber.model';
 import FAQModel from '../models/faq.model';
+import ClientModel from '../models/client.model';
+import { unlink } from 'node:fs/promises';
 import '../types/express.session';
 
 class AdminController {
@@ -13,7 +15,7 @@ class AdminController {
     const user = await UserModel.getUser(req.session.user!.id);
 
     res.render('admin/dashboard', {
-      title: 'Dashboard',
+      title: 'Hivemind | Dashboard',
       view: 'dashboard',
       user,
     });
@@ -150,6 +152,57 @@ class AdminController {
     }
 
     res.redirect('/admin/faqs');
+  }
+
+  static async clients(req: Request, res: Response) {
+    const user = await UserModel.getUser(req.session.user!.id);
+    const clients = await ClientModel.getAllClients();
+
+    res.render('admin/clients', {
+      title: 'Hivemind | Clients',
+      view: 'client',
+      user,
+      clients,
+      alert: {
+        type: req.flash('alertType'),
+        message: req.flash('alertMessage'),
+      },
+    });
+  }
+
+  static async addClient(req: Request, res: Response) {
+    try {
+      await ClientModel.addClient({
+        logo: req.file!.filename,
+        name: req.body.clientName,
+      });
+
+      req.flash('alertMessage', 'Client added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/clients');
+  }
+
+  static async deleteClient(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const client = await ClientModel.getClient(id);
+
+      await unlink(`public/images/${client!.logo}`);
+      await ClientModel.deleteClient(id);
+
+      req.flash('alertMessage', 'Client deleted successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/clients');
   }
 }
 
