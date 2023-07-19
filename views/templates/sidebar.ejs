@@ -18,7 +18,7 @@
         <% } else { %>
           <a class="nav-link" href="/user">
       <% } %>
-      <i class="fas fa-fw fa-tachometer-alt"></i>
+      <i class="fa-solid fa-tachometer-alt"></i>
       <span>Dashboard</span>
       </a>
   </li>
@@ -28,6 +28,18 @@
 
   <!-- Heading -->
   <div class="sidebar-heading">Company</div>
+
+  <!-- Nav Item - Service  -->
+  <% if(view == "service") { %>
+    <li class="nav-item active">
+    <% } else { %>
+    <li class="nav-item">
+    <% } %>
+      <a class="nav-link" href="/admin/services">
+        <i class="fa-solid fa-gear"></i>
+        <span>Service</span>
+      </a>
+    </li>
 
   <!-- Nav Item - Pages Collapse Menu -->
   <% if(view == "subscriber") { %>
@@ -43,7 +55,7 @@
       aria-expanded="true"
       aria-controls="collapseTwo"
     >
-      <i class="fas fa-light fa-bell"></i>
+      <i class="fa-solid fa-bell"></i>
       <span>Subcribers</span>
     </a>
     <div
@@ -59,18 +71,6 @@
     </div>
   </li>
 
-  <!-- Nav Item - Service  -->
-  <% if(view == "service") { %>
-    <li class="nav-item active">
-    <% } else { %>
-    <li class="nav-item">
-    <% } %>
-      <a class="nav-link" href="/admin/services">
-        <i class="fas fa-solid fa-shield-heart"></i>
-        <span>Service</span>
-      </a>
-    </li>
-
   <!-- Nav Item - Clients  -->
   <% if(view == "client") { %>
   <li class="nav-item active">
@@ -78,7 +78,7 @@
   <li class="nav-item">
   <% } %>
     <a class="nav-link" href="/admin/clients">
-      <i class="fas fa-solid fa-briefcase"></i>
+      <i class="fa-solid fa-briefcase"></i>
       <span>Clients</span>
     </a>
   </li>
@@ -90,7 +90,7 @@
   <li class="nav-item">
   <% } %>
     <a class="nav-link" href="/admin/testimonies">
-      <i class="fas fa-regular fa-comments"></i>
+      <i class="fa-solid fa-comments"></i>
       <span>Testimony</span>
     </a>
   </li>
@@ -105,7 +105,7 @@
       aria-expanded="true"
       aria-controls="collapseUtilities"
     >
-      <i class="fas fa-fw fa-wrench"></i>
+      <i class="fa-solid fa-wrench"></i>
       <span>Utilities</span>
     </a>
     <div
@@ -135,7 +135,7 @@
   <li class="nav-item">
   <% } %>
     <a class="nav-link" href="/admin/faqs">
-      <i class="fas fa-solid fa-question"></i>
+      <i class="fa-solid fa-circle-question"></i>
       <span>FAQs</span>
     </a>
   </li>

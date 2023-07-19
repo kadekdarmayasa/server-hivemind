@@ -10,7 +10,7 @@
               <img
                 src="/public/images/hivemind-logo.svg"
                 alt="Hivemind Logo"
-                style="width: 200px"
+                style="width: 100px"
               />
               <h1 class="h3 text-gray-900 mb-4 mt-4">Welcome Back!</h1>
               <%- include('../templates/alert') %>
@@ -26,6 +26,7 @@
                   placeholder="Enter username..."
                   autocomplete="on"
                   required
+                  style="font-size: 0.9rem"
                 />
               </div>
               <div class="form-group">
@@ -38,9 +39,16 @@
                   minlength="8"
                   autocomplete="current-password"
                   required
+                  style="font-size: 0.9rem"
                 />
               </div>
-              <button type="submit" class="btn btn-primary btn-user btn-block">Login</button>
+              <button
+                type="submit"
+                class="btn btn-primary btn-user btn-block"
+                style="font-size: 0.9rem"
+              >
+                Login
+              </button>
             </form>
           </div>
         </div>
