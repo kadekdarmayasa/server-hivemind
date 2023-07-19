@@ -17,13 +17,14 @@
         <form action="/admin/clients?_method=POST" method="post" enctype="multipart/form-data">
           <div class="form-group">
             <label for="clientLogo">Client Logo</label>
-            <input 
-              type="file" 
-              class="form-control" 
-              id="clientLogo" 
+            <input
+              type="file"
+              class="form-control"
+              id="clientLogo"
               name="clientLogo"
-              accept="image/*" 
-              required />
+              accept="image/*"
+              required
+            />
           </div>
           <div class="form-group">
             <label for="clientName">Client Name</label>
@@ -34,7 +35,7 @@
               class="form-control"
               placeholder="e.g. Google, Facebook, etc"
               required
-            ></input>
+            />
           </div>
           <button type="submit" class="btn btn-primary">Add</button>
         </form>
