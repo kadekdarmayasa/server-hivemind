@@ -3,7 +3,9 @@ import UserModel from '../models/user.model';
 import SubscriberModel from '../models/subscriber.model';
 import FAQModel from '../models/faq.model';
 import ClientModel from '../models/client.model';
+import TestimonyModel from '../models/testimony.model';
 import { unlink } from 'node:fs/promises';
+import { access, constants } from 'node:fs';
 import '../types/express.session';
 
 class AdminController {
@@ -203,6 +205,91 @@ class AdminController {
     }
 
     res.redirect('/admin/clients');
+  }
+
+  static async testimonies(req: Request, res: Response) {
+    const testimonies = await TestimonyModel.getAllTestimony();
+    const user = await UserModel.getUser(req.session.user!.id);
+
+    res.render('admin/testimonies', {
+      title: 'Hivemind | Testimony',
+      view: 'testimony',
+      testimonies,
+      user,
+      alert: {
+        type: req.flash('alertType'),
+        message: req.flash('alertMessage'),
+      },
+    });
+  }
+
+  static async addTestimony(req: Request, res: Response) {
+    try {
+      await TestimonyModel.addTestimony({
+        clientName: req.body.clientName,
+        clientPhoto: req.file!.filename,
+        occupation: req.body.occupation,
+        message: req.body.message,
+        rate: parseFloat(req.body.rate as string),
+      });
+
+      req.flash('alertMessage', 'Testimony added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/testimonies');
+  }
+
+  static async updateTestimony(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.body.id as string, 10);
+      const testimony = await TestimonyModel.getTestimony(id);
+
+      if (req.file) {
+        const oldClientPhoto = `public/images/${testimony!.clientPhoto}`;
+        access(oldClientPhoto, constants.F_OK, (err) => {
+          if (!err) unlink(oldClientPhoto);
+        });
+      }
+
+      await TestimonyModel.updateTestimony({
+        id,
+        clientName: req.body.clientName,
+        clientPhoto: req.file ? req.file.filename : testimony!.clientPhoto,
+        occupation: req.body.occupation,
+        message: req.body.message,
+        rate: parseFloat(req.body.rate as string),
+      });
+
+      req.flash('alertMessage', 'Testimony updated successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      console.log(error);
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/testimonies');
+  }
+
+  static async deleteTestimony(req: Request, res: Response) {
+    try {
+      const testimony = await TestimonyModel.getTestimony(parseInt(req.params.id as string, 10));
+
+      await unlink(`public/images/${testimony!.clientPhoto}`);
+      await TestimonyModel.deleteTestimony(parseInt(req.params.id as string, 10));
+
+      req.flash('alertMessage', 'Testimony deleted successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/testimonies');
   }
 }
 

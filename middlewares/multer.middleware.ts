@@ -26,7 +26,7 @@ const upload = multer({
 });
 
 function checkFileType(file: Express.Multer.File, cb: multer.FileFilterCallback) {
-  const filetypes = /[jp][en]g|svg/;
+  const filetypes = /[jpen]g|svg/;
   const extname = filetypes.test(path.extname(file.originalname)?.toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
 

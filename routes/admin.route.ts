@@ -30,3 +30,24 @@ adminRouter.post(
   AdminController.addClient,
 );
 adminRouter.delete('/clients/:id', AdminController.deleteClient);
+
+adminRouter.get('/testimonies', AdminController.testimonies);
+adminRouter.post(
+  '/testimonies',
+  body('clientName').trim(),
+  body('occupation').trim(),
+  body('message').trim(),
+  body('rate'),
+  processUpload(multer.upload.single('clientPhoto'), '/admin/testimonies'),
+  AdminController.addTestimony,
+);
+adminRouter.put(
+  '/testimonies',
+  body('clientName').trim(),
+  body('occupation').trim(),
+  body('message').trim(),
+  body('rate'),
+  processUpload(multer.upload.single('clientPhoto'), '/admin/testimonies'),
+  AdminController.updateTestimony,
+);
+adminRouter.delete('/testimonies/:id', AdminController.deleteTestimony);
