@@ -78,9 +78,10 @@
   $('.delete-btn')
     .toArray()
     .forEach(function (deleteButton) {
-      $(deleteButton).on('click', function () {
+      $(deleteButton).on('click', function (event) {
         const confirmation = confirm('Are you sure you want to delete this subscriber?');
         if (confirmation) $(this).submit();
+        event.preventDefault();
       });
     });
 
