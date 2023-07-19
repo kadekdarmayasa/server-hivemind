@@ -51,3 +51,20 @@ adminRouter.put(
   AdminController.updateTestimony,
 );
 adminRouter.delete('/testimonies/:id', AdminController.deleteTestimony);
+
+adminRouter.get('/services', AdminController.services);
+adminRouter.post(
+  '/services',
+  body('serviceName').trim(),
+  body('description').trim(),
+  processUpload(multer.upload.single('thumbnail'), '/admin/services'),
+  AdminController.addService,
+);
+adminRouter.put(
+  '/services',
+  body('serviceName').trim(),
+  body('description').trim(),
+  processUpload(multer.upload.single('thumbnail'), '/admin/services'),
+  AdminController.updateService,
+);
+adminRouter.delete('/services/:id', AdminController.deleteService);

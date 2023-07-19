@@ -59,6 +59,18 @@
     </div>
   </li>
 
+  <!-- Nav Item - Service  -->
+  <% if(view == "service") { %>
+    <li class="nav-item active">
+    <% } else { %>
+    <li class="nav-item">
+    <% } %>
+      <a class="nav-link" href="/admin/services">
+        <i class="fas fa-solid fa-shield-heart"></i>
+        <span>Service</span>
+      </a>
+    </li>
+
   <!-- Nav Item - Clients  -->
   <% if(view == "client") { %>
   <li class="nav-item active">

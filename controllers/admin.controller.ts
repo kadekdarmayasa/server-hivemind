@@ -4,6 +4,7 @@ import SubscriberModel from '../models/subscriber.model';
 import FAQModel from '../models/faq.model';
 import ClientModel from '../models/client.model';
 import TestimonyModel from '../models/testimony.model';
+import ServiceModel from '../models/service.model';
 import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
 import '../types/express.session';
@@ -290,6 +291,84 @@ class AdminController {
     }
 
     res.redirect('/admin/testimonies');
+  }
+
+  static async services(req: Request, res: Response) {
+    const services = await ServiceModel.getAllServices();
+    const user = await UserModel.getUser(req.session.user!.id);
+
+    res.render('admin/services', {
+      title: 'Hivemind | Services',
+      view: 'service',
+      services,
+      user,
+      alert: {
+        type: req.flash('alertType'),
+        message: req.flash('alertMessage'),
+      },
+    });
+  }
+
+  static async addService(req: Request, res: Response) {
+    try {
+      await ServiceModel.addService({
+        name: req.body.serviceName,
+        description: req.body.description,
+        thumbnail: req.file!.filename,
+      });
+
+      req.flash('alertMessage', 'Service added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/services');
+  }
+
+  static async updateService(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.body.id as string, 10);
+      const service = await ServiceModel.getService(id);
+
+      if (req.file) {
+        const oldThumbnail = `public/images/${service!.thumbnail}`;
+        access(oldThumbnail, constants.F_OK, (err) => {
+          if (!err) unlink(oldThumbnail);
+        });
+      }
+
+      await ServiceModel.updateService({
+        id,
+        name: req.body.serviceName,
+        description: req.body.description,
+        thumbnail: req.file ? req.file.filename : service!.thumbnail,
+      });
+
+      req.flash('alertMessage', 'Service updated successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/services');
+  }
+
+  static async deleteService(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      await ServiceModel.deleteService(id);
+
+      req.flash('alertMessage', 'Service deleted successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/admin/services');
   }
 }
 
