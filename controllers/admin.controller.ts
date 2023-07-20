@@ -360,11 +360,13 @@ class AdminController {
   static async deleteService(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id as string, 10);
+      const service = await ServiceModel.getService(id);
       const portfolios = await PortfolioModel.getAllPortfolios();
       const isServiceUsed = portfolios.some((portfolio) => portfolio.serviceId === id);
 
       if (isServiceUsed) throw new Error('Service is being used by portfolios, delete them first!');
 
+      await unlink(`public/images/${service!.thumbnail}`);
       await ServiceModel.deleteService(id);
       req.flash('alertMessage', 'Service deleted successfully');
       req.flash('alertType', 'success');
