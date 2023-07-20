@@ -10,75 +10,40 @@ interface Testimony {
 }
 
 class TestimonyModel {
-  static async getAllTestimony(): Promise<Testimony[] | null> {
+  static _selectTemplate = {
+    id: true,
+    clientName: true,
+    clientPhoto: true,
+    occupation: true,
+    message: true,
+    rate: true,
+  };
+
+  static async getAllTestimony(): Promise<Testimony[]> {
     return db.testimony.findMany({
-      select: {
-        id: true,
-        clientName: true,
-        clientPhoto: true,
-        occupation: true,
-        message: true,
-        rate: true,
-      },
+      select: { ...this._selectTemplate },
     });
   }
 
   static async getTestimony(id: number): Promise<Testimony | null> {
     return db.testimony.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-        clientName: true,
-        clientPhoto: true,
-        occupation: true,
-        message: true,
-        rate: true,
-      },
+      where: { id },
+      select: { ...this._selectTemplate },
     });
   }
 
-  static async addTestimony(testimony: Omit<Testimony, 'id'>): Promise<Testimony | null> {
+  static async addTestimony(testimony: Omit<Testimony, 'id'>): Promise<Testimony> {
     return db.testimony.create({
-      data: {
-        clientName: testimony.clientName,
-        clientPhoto: testimony.clientPhoto,
-        occupation: testimony.occupation,
-        message: testimony.message,
-        rate: testimony.rate,
-      },
-      select: {
-        id: true,
-        clientName: true,
-        clientPhoto: true,
-        occupation: true,
-        message: true,
-        rate: true,
-      },
+      data: { ...testimony },
+      select: { ...this._selectTemplate },
     });
   }
 
-  static async updateTestimony(testimony: Testimony): Promise<Testimony | null> {
+  static async updateTestimony(testimony: Testimony): Promise<Testimony> {
     return db.testimony.update({
-      where: {
-        id: testimony.id,
-      },
-      data: {
-        clientName: testimony.clientName,
-        clientPhoto: testimony.clientPhoto,
-        occupation: testimony.occupation,
-        message: testimony.message,
-        rate: testimony.rate,
-      },
-      select: {
-        id: true,
-        clientName: true,
-        clientPhoto: true,
-        occupation: true,
-        message: true,
-        rate: true,
-      },
+      where: { id: testimony.id },
+      data: { ...(testimony as Omit<Testimony, 'id'>) },
+      select: { ...this._selectTemplate },
     });
   }
 

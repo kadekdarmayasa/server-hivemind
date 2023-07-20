@@ -7,70 +7,42 @@ interface FAQ {
 }
 
 class FAQModel {
+  static _selectTemplate = {
+    id: true,
+    question: true,
+    answer: true,
+  };
+
   static async getAllFAQs(): Promise<FAQ[]> {
     return db.fAQ.findMany({
-      select: {
-        id: true,
-        question: true,
-        answer: true,
-      },
+      select: { ...this._selectTemplate },
     });
   }
 
   static async getFAQ(id: number): Promise<FAQ | null> {
     return db.fAQ.findFirst({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-        question: true,
-        answer: true,
-      },
+      where: { id },
+      select: { ...this._selectTemplate },
     });
   }
 
-  static async updateFAQ(faq: FAQ): Promise<FAQ> {
-    const { id, question, answer } = faq;
-
+  static async updateFAQ({ id, question, answer }: FAQ): Promise<FAQ> {
     return db.fAQ.update({
-      where: {
-        id: id,
-      },
-      data: {
-        question: question,
-        answer: answer,
-      },
-      select: {
-        id: true,
-        question: true,
-        answer: true,
-      },
+      where: { id },
+      data: { question, answer },
+      select: { ...this._selectTemplate },
     });
   }
 
-  static async addFAQ(faq: Omit<FAQ, 'id'>): Promise<FAQ> {
-    const { question, answer } = faq;
-
+  static async addFAQ({ question, answer }: FAQ): Promise<FAQ> {
     return db.fAQ.create({
-      data: {
-        question: question,
-        answer: answer,
-      },
-      select: {
-        id: true,
-        question: true,
-        answer: true,
-      },
+      data: { question, answer },
+      select: { ...this._selectTemplate },
     });
   }
 
   static async deleteFAQ(id: number): Promise<void> {
-    await db.fAQ.delete({
-      where: {
-        id,
-      },
-    });
+    await db.fAQ.delete({ where: { id } });
   }
 }
 

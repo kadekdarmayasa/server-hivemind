@@ -63,7 +63,7 @@ class AdminController {
       const id = parseInt(req.body.id as string, 10);
       const email = req.body.email;
 
-      await SubscriberModel.updateSubscriber(id, email);
+      await SubscriberModel.updateSubscriber({ id, email });
 
       req.flash('alertMessage', 'Subscriber updated successfully');
       req.flash('alertType', 'success');
@@ -78,8 +78,7 @@ class AdminController {
   static async deleteSubscriber(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id as string, 10);
-      const subscriber = await SubscriberModel.deleteSubscriber(id);
-      if (!subscriber) throw new Error('Subscriber not found');
+      await SubscriberModel.deleteSubscriber(id);
 
       req.flash('alertMessage', 'Subscriber deleted successfully');
       req.flash('alertType', 'success');

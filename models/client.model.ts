@@ -7,47 +7,34 @@ interface Client {
 }
 
 class ClientModel {
+  static _selectTemplate = {
+    id: true,
+    logo: true,
+    name: true,
+  };
+
   static async getAllClients(): Promise<Client[]> {
     return db.client.findMany({
-      select: {
-        id: true,
-        logo: true,
-        name: true,
-      },
+      select: { ...this._selectTemplate },
     });
   }
 
   static async getClient(id: number): Promise<Client | null> {
     return db.client.findFirst({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-        logo: true,
-        name: true,
-      },
+      where: { id },
+      select: { ...this._selectTemplate },
     });
   }
 
-  static async addClient(client: Omit<Client, 'id'>): Promise<Client> {
+  static async addClient({ logo, name }: Client): Promise<Client> {
     return db.client.create({
-      data: {
-        logo: client.logo,
-        name: client.name,
-      },
-      select: {
-        id: true,
-        logo: true,
-        name: true,
-      },
+      data: { logo, name },
+      select: { ...this._selectTemplate },
     });
   }
 
   static async deleteClient(id: number): Promise<void> {
-    await db.client.delete({
-      where: { id },
-    });
+    await db.client.delete({ where: { id } });
   }
 }
 

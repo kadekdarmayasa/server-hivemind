@@ -1,6 +1,6 @@
 import { db } from '../lib/server.db';
 
-interface ReadUser {
+interface User {
   id: number;
   name?: string;
   username: string;
@@ -10,7 +10,7 @@ interface ReadUser {
 }
 
 class UserModel {
-  static async getUserByUsername(username: string): Promise<ReadUser | null> {
+  static async getUserByUsername(username: string): Promise<User | null> {
     return db.user.findFirst({
       where: {
         username: username,
@@ -24,7 +24,7 @@ class UserModel {
     });
   }
 
-  static async getUser(id: number): Promise<ReadUser | null> {
+  static async getUser(id: number): Promise<User | null> {
     return db.user.findFirst({
       where: {
         id: id,
