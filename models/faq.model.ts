@@ -34,7 +34,7 @@ class FAQModel {
     });
   }
 
-  static async addFAQ({ question, answer }: FAQ): Promise<FAQ> {
+  static async addFAQ({ question, answer }: Omit<FAQ, 'id'>): Promise<FAQ> {
     return db.fAQ.create({
       data: { question, answer },
       select: { ...this._selectTemplate },

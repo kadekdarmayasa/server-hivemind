@@ -26,7 +26,7 @@ class ClientModel {
     });
   }
 
-  static async addClient({ logo, name }: Client): Promise<Client> {
+  static async addClient({ logo, name }: Omit<Client, 'id'>): Promise<Client> {
     return db.client.create({
       data: { logo, name },
       select: { ...this._selectTemplate },
