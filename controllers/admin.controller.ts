@@ -5,6 +5,7 @@ import FAQModel from '../models/faq.model';
 import ClientModel from '../models/client.model';
 import TestimonyModel from '../models/testimony.model';
 import ServiceModel from '../models/service.model';
+import PortfolioModel from '../models/portfolio.model';
 import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
 import '../types/express.session';
@@ -369,6 +370,90 @@ class AdminController {
     }
 
     res.redirect('/admin/services');
+  }
+
+  static async portfolios(req: Request, res: Response) {
+    const portfolios = await PortfolioModel.getAllPortfolios();
+    const services = await ServiceModel.getAllServices();
+    const user = await UserModel.getUser(req.session.user!.id);
+
+    res.render('admin/portfolios', {
+      title: 'Hivemind | Portfolio',
+      view: 'portfolio',
+      user,
+      services,
+      portfolios,
+      alert: {
+        type: req.flash('alertType'),
+        message: req.flash('alertMessage'),
+      },
+    });
+  }
+
+  static async addPortfolio(req: Request, res: Response) {
+    try {
+      await PortfolioModel.addPortfolio({
+        name: req.body.portfolioName,
+        thumbnail: req.file!.filename,
+        orientation: req.body.orientation,
+        serviceId: parseInt(req.body.serviceId as string, 10),
+      });
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Portfolio added successfully');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/admin/portfolios');
+  }
+
+  static async updatePortfolio(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.body.portfolioId as string, 10);
+      const portfolio = await PortfolioModel.getPortfolio(id);
+      const oldThumbnail = `public/images/${portfolio!.thumbnail}`;
+
+      if (req.file) {
+        access(oldThumbnail, constants.F_OK, (err) => {
+          if (!err) unlink(oldThumbnail);
+        });
+      }
+
+      await PortfolioModel.updatePortfolio({
+        id,
+        name: req.body.portfolioName,
+        thumbnail: req.file ? req.file.filename : portfolio!.thumbnail,
+        orientation: req.body.orientation,
+        serviceId: parseInt(req.body.serviceId as string, 10),
+      });
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Portfolio updated successfully');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/admin/portfolios');
+  }
+
+  static async deletePortfolio(req: Request, res: Response) {
+    try {
+      const portfolio = await PortfolioModel.getPortfolio(parseInt(req.params.id as string, 10));
+
+      await unlink(`public/images/${portfolio!.thumbnail}`);
+      await PortfolioModel.deletePortfolio(parseInt(req.params.id as string, 10));
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Portfolio deleted successfully');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/admin/portfolios');
   }
 }
 

@@ -41,6 +41,18 @@
       </a>
     </li>
 
+  <!-- Nav Item - Portfolio  -->
+  <% if(view == "portfolio") { %>
+    <li class="nav-item active">
+    <% } else { %>
+    <li class="nav-item">
+    <% } %>
+      <a class="nav-link" href="/admin/portfolios">
+        <i class="fa-solid fa-folder-closed"></i>
+        <span>Portfolio</span>
+      </a>
+    </li>
+
   <!-- Nav Item - Pages Collapse Menu -->
   <% if(view == "subscriber") { %>
   <li class="nav-item active">

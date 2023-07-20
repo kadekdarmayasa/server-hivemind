@@ -68,3 +68,22 @@ adminRouter.put(
   AdminController.updateService,
 );
 adminRouter.delete('/services/:id', AdminController.deleteService);
+
+adminRouter.get('/portfolios', AdminController.portfolios);
+adminRouter.post(
+  '/portfolios',
+  body('portfolioName').trim(),
+  body('orientation').trim(),
+  body('serviceId').isInt(),
+  processUpload(multer.upload.single('thumbnail'), '/admin/portfolios'),
+  AdminController.addPortfolio,
+);
+adminRouter.put(
+  '/portfolios',
+  body('portfolioName').trim(),
+  body('orientation').trim(),
+  body('serviceId').isInt(),
+  processUpload(multer.upload.single('thumbnail'), '/admin/portfolios'),
+  AdminController.updatePortfolio,
+);
+adminRouter.delete('/portfolios/:id', AdminController.deletePortfolio);
