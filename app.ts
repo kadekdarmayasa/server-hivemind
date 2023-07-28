@@ -8,7 +8,7 @@ import flash from 'connect-flash';
 import path from 'path';
 
 import { indexRouter } from './routes/index.route';
-import { adminRouter } from './routes/admin.route';
+import { userRouter } from './routes/user.route';
 import { authRouter } from './routes/auth.route';
 
 dotenv.config();
@@ -44,10 +44,11 @@ app.use(
   '/sb-admin-2',
   express.static(path.join(__dirname, 'node_modules/startbootstrap-sb-admin-2')),
 );
+app.use('/cropper', express.static(path.join(__dirname, 'node_modules/cropperjs/dist')));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
-app.use('/admin', adminRouter);
+app.use('/user', userRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`Listening on port ${process.env.PORT}`);

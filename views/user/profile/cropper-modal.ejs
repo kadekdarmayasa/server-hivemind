@@ -1,0 +1,37 @@
+<div
+  class="modal fade"
+  id="cropperModal"
+  tabindex="-1"
+  aria-labelledby="cropperModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body modal-lg row">
+        <div class="col-md-8" style="height: 500px">
+          <img
+            src=""
+            alt=""
+            id="edit-photo"
+            class="img-fluid"
+            style="display: block; max-width: 100%; height: 100%"
+          />
+        </div>
+        <div class="col-md-4">
+          <div
+            id="preview"
+            style="height: 160px; width: 160px; border-radius: 50%; overflow: hidden; margin: auto"
+          ></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="crop" type="button" class="btn btn-primary">Crop</button>
+      </div>
+    </div>
+  </div>
+</div>

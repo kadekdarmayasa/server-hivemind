@@ -1,0 +1,45 @@
+<div
+  class="modal fade"
+  id="addClient"
+  tabindex="-1"
+  aria-labelledby="addClientLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addClientLabel">Add New Client</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/user/clients?_method=POST" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="clientLogo">Client Logo</label>
+            <input
+              type="file"
+              class="form-control"
+              id="clientLogo"
+              name="clientLogo"
+              accept="image/*"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="clientName">Client Name</label>
+            <input
+              type="text"
+              name="clientName"
+              id="clientName"
+              class="form-control"
+              placeholder="e.g. Google, Facebook, etc"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

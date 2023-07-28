@@ -6,7 +6,7 @@ import '../types/express.session';
 class AuthController {
   static async viewSignin(req: Request, res: Response) {
     if (req.session.user) {
-      return res.redirect(req.session.user!.roleId === 1 ? '/admin/dashboard' : '/user/dashboard');
+      return res.redirect('/user');
     }
 
     res.render('auth/signin', {
@@ -41,7 +41,7 @@ class AuthController {
       roleId: user.roleId,
     };
 
-    res.redirect(user.roleId === 1 ? '/admin' : '/user');
+    res.redirect('/user');
   }
 
   static async actionSignout(req: Request, res: Response) {

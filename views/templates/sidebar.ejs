@@ -12,15 +12,11 @@
   <li class="nav-item active">
   <% } else { %>
   <li class="nav-item">
-  <% } %>
-    <% if(user.roleId === 1) { %>
-      <a class="nav-link" href="/admin">
-        <% } else { %>
-          <a class="nav-link" href="/user">
-      <% } %>
+    <% } %>
+    <a class="nav-link" href="/user">
       <i class="fa-solid fa-tachometer-alt"></i>
       <span>Dashboard</span>
-      </a>
+    </a>
   </li>
 
   <!-- Divider -->
@@ -31,27 +27,27 @@
 
   <!-- Nav Item - Service  -->
   <% if(view == "service") { %>
-    <li class="nav-item active">
-    <% } else { %>
-    <li class="nav-item">
+  <li class="nav-item active">
+  <% } else { %>
+  <li class="nav-item">
     <% } %>
-      <a class="nav-link" href="/admin/services">
-        <i class="fa-solid fa-gear"></i>
-        <span>Service</span>
-      </a>
-    </li>
+    <a class="nav-link" href="/user/services">
+      <i class="fa-solid fa-gear"></i>
+      <span>Service</span>
+    </a>
+  </li>
 
   <!-- Nav Item - Portfolio  -->
   <% if(view == "portfolio") { %>
-    <li class="nav-item active">
-    <% } else { %>
-    <li class="nav-item">
+  <li class="nav-item active">
+  <% } else { %>
+  <li class="nav-item">
     <% } %>
-      <a class="nav-link" href="/admin/portfolios">
-        <i class="fa-solid fa-folder-closed"></i>
-        <span>Portfolio</span>
-      </a>
-    </li>
+    <a class="nav-link" href="/user/portfolios">
+      <i class="fa-solid fa-folder-closed"></i>
+      <span>Portfolio</span>
+    </a>
+  </li>
 
   <!-- Nav Item - Pages Collapse Menu -->
   <% if(view == "subscriber") { %>
@@ -77,8 +73,8 @@
       data-parent="#accordionSidebar"
     >
       <div class="bg-white py-2 collapse-inner rounded">
-        <a class="collapse-item" href="/admin/subscribers">Subscribers</a>
-        <a class="collapse-item" href="/admin/newstellers">Newstellers</a>
+        <a class="collapse-item" href="/user/subscribers">Subscribers</a>
+        <a class="collapse-item" href="/user/newstellers">Newstellers</a>
       </div>
     </div>
   </li>
@@ -88,8 +84,8 @@
   <li class="nav-item active">
   <% } else { %>
   <li class="nav-item">
-  <% } %>
-    <a class="nav-link" href="/admin/clients">
+    <% } %>
+    <a class="nav-link" href="/user/clients">
       <i class="fa-solid fa-briefcase"></i>
       <span>Clients</span>
     </a>
@@ -101,7 +97,7 @@
   <% } else { %>
   <li class="nav-item">
   <% } %>
-    <a class="nav-link" href="/admin/testimonies">
+    <a class="nav-link" href="/user/testimonies">
       <i class="fa-solid fa-comments"></i>
       <span>Testimony</span>
     </a>
@@ -135,7 +131,7 @@
       </div>
     </div>
   </li>
- 
+
   <hr class="sidebar-divider" />
 
   <div class="sidebar-heading">Others</div>
@@ -145,13 +141,12 @@
   <li class="nav-item active">
   <% } else { %>
   <li class="nav-item">
-  <% } %>
-    <a class="nav-link" href="/admin/faqs">
+    <% } %>
+    <a class="nav-link" href="/user/faqs">
       <i class="fa-solid fa-circle-question"></i>
       <span>FAQs</span>
     </a>
   </li>
-
 
   <!-- Divider -->
   <hr class="sidebar-divider d-none d-md-block" />
