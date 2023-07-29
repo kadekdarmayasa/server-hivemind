@@ -1,11 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  thumbnail: string;
-}
+import { Service } from '../types/service';
 
 class ServiceModel {
   static _selectTemplate = {

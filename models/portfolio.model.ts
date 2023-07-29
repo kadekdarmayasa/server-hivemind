@@ -1,12 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface Portfolio {
-  id: number;
-  name: string;
-  thumbnail: string;
-  orientation: string;
-  serviceId: number;
-}
+import { Portfolio } from '../types/portfolio';
 
 class PortfolioModel {
   static _selectTemplate = {

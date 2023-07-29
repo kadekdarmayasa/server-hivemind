@@ -1,9 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface Role {
-  id: number;
-  name: string;
-}
+import { Role } from '../types/role';
 
 class RoleModel {
   static async getAllRoles(): Promise<Role[]> {

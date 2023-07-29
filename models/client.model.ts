@@ -1,10 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface Client {
-  id: number;
-  logo: string;
-  name: string;
-}
+import { Client } from '../types/client';
 
 class ClientModel {
   static _selectTemplate = {

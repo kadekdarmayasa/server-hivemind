@@ -26,7 +26,13 @@ userRouter.put(
   processUpload(multer.upload.single('photo'), '/user/profile'),
   UserController.updatePhotoProfile,
 );
-// TODO: make route for updating profile picture and password
+userRouter.put(
+  '/update-password',
+  body('id'),
+  body('newPassword').trim(),
+  body('currentPassword').trim(),
+  UserController.updatePassword,
+);
 
 userRouter.get('/subscribers', UserController.subscribers);
 userRouter.post('/subscribers', body('email').trim(), UserController.addSubscriber);

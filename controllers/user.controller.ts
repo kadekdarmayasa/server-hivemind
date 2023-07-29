@@ -10,6 +10,7 @@ import RoleModel from '../models/role.model';
 import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
 import '../types/express.session';
+import bcrypt from 'bcryptjs';
 
 class UserController {
   static async index(req: Request, res: Response) {
@@ -52,12 +53,8 @@ class UserController {
 
   static async updateProfile(req: Request, res: Response) {
     try {
-      const userId = parseInt(req.body.id as string, 10);
-      const user = await UserModel.getUser(userId);
-
       await UserModel.updateUser({
-        id: userId,
-        password: user!.password,
+        id: parseInt(req.body.id as string, 10),
         name: req.body.name,
         username: req.body.username,
         email: req.body.email,
@@ -75,6 +72,27 @@ class UserController {
     res.redirect('/user/profile');
   }
 
+  static async updatePassword(req: Request, res: Response) {
+    try {
+      const userId: number = parseInt(req.body.id as string, 10);
+      const user = await UserModel.getUser(userId);
+      const currentPassword = req.body.currentPassword;
+      const newPassword = req.body.newPassword;
+
+      if (!bcrypt.compareSync(currentPassword, user!.password)) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+
+      const salt = await bcrypt.genSalt(8);
+      await UserModel.updatePassword(userId, bcrypt.hashSync(newPassword, salt));
+      return res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+      res.redirect('/user/profile');
+    }
+  }
+
   static async updatePhotoProfile(req: Request, res: Response) {
     try {
       const userId = parseInt(req.body.id as string, 10);
@@ -89,17 +107,13 @@ class UserController {
 
       await UserModel.updatePhotoProfile(userId, req.file!.filename);
 
-      req.flash('alertMessage', 'Profile photo updated successfully');
-      req.flash('alertType', 'success');
+      return res.status(200).json({ message: 'Photo profile updated successfully' });
     } catch (error: any) {
       req.flash('alertMessage', error.message);
       req.flash('alertType', 'danger');
+      res.redirect('/user/profile');
     }
-
-    res.redirect('/user/profile');
   }
-
-  // TODO: add updateProfilePassword method
 
   static async subscribers(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);

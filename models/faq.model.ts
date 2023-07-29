@@ -1,10 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface FAQ {
-  id: number;
-  question: string;
-  answer: string;
-}
+import { FAQ } from '../types/faq';
 
 class FAQModel {
   static _selectTemplate = {

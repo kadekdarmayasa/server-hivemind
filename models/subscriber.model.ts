@@ -1,9 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface Subscriber {
-  id: number;
-  email: string;
-}
+import { Subscriber } from '../types/subscriber';
 
 class SubscriberModel {
   static _selectTemplate = {

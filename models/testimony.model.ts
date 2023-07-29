@@ -1,13 +1,5 @@
 import { db } from '../lib/server.db';
-
-interface Testimony {
-  id: number;
-  clientName: string;
-  clientPhoto: string;
-  occupation: string;
-  message: string;
-  rate: number;
-}
+import { Testimony } from '../types/testimony';
 
 class TestimonyModel {
   static _selectTemplate = {
