@@ -109,6 +109,18 @@
     </div>
   </li>
 
+  <!-- Nav Item - Teams  -->
+  <% if(view == "teams") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/teams">
+      <i class="fa-solid fa-briefcase"></i>
+      <span>Teams</span>
+    </a>
+  </li>
+
   <!-- Nav Item - Clients  -->
   <% if(view == "client") { %>
   <li class="nav-item active"><% } else { %></li>

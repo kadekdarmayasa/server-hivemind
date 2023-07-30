@@ -114,3 +114,26 @@ userRouter.get('/roles', UserController.roles);
 userRouter.post('/roles', body('roleName').trim(), UserController.addRole);
 userRouter.put('/roles', body('roleName').trim(), UserController.updateRole);
 userRouter.delete('/roles/:id', UserController.deleteRole);
+
+userRouter.get('/teams', UserController.teams);
+userRouter.post(
+  '/teams',
+  body('name').trim(),
+  body('username').trim(),
+  body('password').trim(),
+  body('linkedin').trim(),
+  processUpload(multer.upload.single('photo'), '/user/team'),
+  UserController.addTeam,
+);
+userRouter.put(
+  '/teams',
+  body('name').trim(),
+
+  body('name').trim(),
+  body('username').trim(),
+  body('password').trim(),
+  body('linkedin').trim(),
+  processUpload(multer.upload.single('photo'), '/user/team'),
+  UserController.updateTeam,
+);
+userRouter.delete('/teams/:id', UserController.deleteTeam);
