@@ -20,6 +20,37 @@ class RoleModel {
       },
     });
   }
+
+  static async addRole(name: string): Promise<Role> {
+    return db.role.create({
+      data: {
+        name,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  static async updateRole(id: number, name: string): Promise<Role | null> {
+    return db.role.update({
+      where: { id },
+      data: {
+        name,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  static async deleteRole(id: number): Promise<void> {
+    await db.role.delete({
+      where: { id },
+    });
+  }
 }
 
 export default RoleModel;

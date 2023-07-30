@@ -9,8 +9,8 @@
 
   <!-- Nav Item - Dashboard -->
   <% if(view == "dashboard") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user">
@@ -25,10 +25,40 @@
   <!-- Heading -->
   <div class="sidebar-heading">Company</div>
 
+  <!-- Nav Item - Teams -->
+  <% if(view == "teams") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a
+      class="nav-link collapsed"
+      href="javascript:void(0);"
+      data-toggle="collapse"
+      data-target="#collapseOne"
+      aria-expanded="true"
+      aria-controls="collapseOne"
+    >
+      <i class="fa-solid fa-user-group"></i>
+      <span>Teams</span>
+    </a>
+    <div
+      id="collapseOne"
+      class="collapse"
+      aria-labelledby="headingTwo"
+      data-parent="#accordionSidebar"
+    >
+      <div class="bg-white py-2 collapse-inner rounded">
+        <a class="collapse-item" href="/user/teams">People</a>
+        <a class="collapse-item" href="/user/roles">Roles</a>
+      </div>
+    </div>
+  </li>
+
   <!-- Nav Item - Service  -->
   <% if(view == "service") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/services">
@@ -39,8 +69,8 @@
 
   <!-- Nav Item - Portfolio  -->
   <% if(view == "portfolio") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/portfolios">
@@ -49,12 +79,12 @@
     </a>
   </li>
 
-  <!-- Nav Item - Pages Collapse Menu -->
+  <!-- Nav Item - Subscribers -->
   <% if(view == "subscriber") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
-  <% } %>
+    <% } %>
     <a
       class="nav-link collapsed"
       href="javascript:void(0);"
@@ -81,8 +111,8 @@
 
   <!-- Nav Item - Clients  -->
   <% if(view == "client") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/clients">
@@ -93,43 +123,14 @@
 
   <!-- Nav Item - Testimony  -->
   <% if(view == "testimony") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
-  <% } %>
+    <% } %>
     <a class="nav-link" href="/user/testimonies">
       <i class="fa-solid fa-comments"></i>
       <span>Testimony</span>
     </a>
-  </li>
-
-  <!-- Nav Item - Utilities Collapse Menu -->
-  <li class="nav-item">
-    <a
-      class="nav-link collapsed"
-      href="#"
-      data-toggle="collapse"
-      data-target="#collapseUtilities"
-      aria-expanded="true"
-      aria-controls="collapseUtilities"
-    >
-      <i class="fa-solid fa-wrench"></i>
-      <span>Utilities</span>
-    </a>
-    <div
-      id="collapseUtilities"
-      class="collapse"
-      aria-labelledby="headingUtilities"
-      data-parent="#accordionSidebar"
-    >
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Custom Utilities:</h6>
-        <a class="collapse-item" href="utilities-color.html">Colors</a>
-        <a class="collapse-item" href="utilities-border.html">Borders</a>
-        <a class="collapse-item" href="utilities-animation.html">Animations</a>
-        <a class="collapse-item" href="utilities-other.html">Other</a>
-      </div>
-    </div>
   </li>
 
   <hr class="sidebar-divider" />
@@ -138,8 +139,8 @@
 
   <!-- Nav Item - FAQs -->
   <% if(view == "faq") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/faqs">

@@ -109,3 +109,8 @@ userRouter.put(
   UserController.updatePortfolio,
 );
 userRouter.delete('/portfolios/:id', UserController.deletePortfolio);
+
+userRouter.get('/roles', UserController.roles);
+userRouter.post('/roles', body('roleName').trim(), UserController.addRole);
+userRouter.put('/roles', body('roleName').trim(), UserController.updateRole);
+userRouter.delete('/roles/:id', UserController.deleteRole);

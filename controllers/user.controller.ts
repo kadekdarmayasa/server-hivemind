@@ -115,6 +115,64 @@ class UserController {
     }
   }
 
+  static async roles(req: Request, res: Response) {
+    const user = await UserModel.getUser(req.session.user!.id);
+    const roles = await RoleModel.getAllRoles();
+
+    res.render('user/roles', {
+      title: 'Hivemind | Roles',
+      view: 'teams',
+      user,
+      roles,
+      alert: {
+        message: req.flash('alertMessage'),
+        type: req.flash('alertType'),
+      },
+    });
+  }
+
+  static async addRole(req: Request, res: Response) {
+    try {
+      await RoleModel.addRole(req.body.roleName);
+
+      req.flash('alertMessage', 'Role added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/user/roles');
+  }
+
+  static async updateRole(req: Request, res: Response) {
+    try {
+      await RoleModel.updateRole(parseInt(req.body.roleId as string, 10), req.body.roleName);
+
+      req.flash('alertMessage', 'Role updated successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/user/roles');
+  }
+
+  static async deleteRole(req: Request, res: Response) {
+    try {
+      await RoleModel.deleteRole(parseInt(req.params.id as string, 10));
+
+      req.flash('alertMessage', 'Role deleted successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/user/roles');
+  }
+
   static async subscribers(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
     const subscribers = await SubscriberModel.getAllSubscribers();
