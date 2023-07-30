@@ -9,8 +9,8 @@
 
   <!-- Nav Item - Dashboard -->
   <% if(view == "dashboard") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user">
@@ -27,8 +27,8 @@
 
   <!-- Nav Item - Service  -->
   <% if(view == "service") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/services">
@@ -39,8 +39,8 @@
 
   <!-- Nav Item - Portfolio  -->
   <% if(view == "portfolio") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/portfolios">
@@ -51,10 +51,10 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <% if(view == "subscriber") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
-  <% } %>
+    <% } %>
     <a
       class="nav-link collapsed"
       href="javascript:void(0);"
@@ -79,10 +79,22 @@
     </div>
   </li>
 
+  <!-- Nav Item - Teams  -->
+  <% if(view == "teams") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/teams">
+      <i class="fa-solid fa-briefcase"></i>
+      <span>Teams</span>
+    </a>
+  </li>
+
   <!-- Nav Item - Clients  -->
   <% if(view == "client") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/clients">
@@ -93,10 +105,10 @@
 
   <!-- Nav Item - Testimony  -->
   <% if(view == "testimony") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
-  <% } %>
+    <% } %>
     <a class="nav-link" href="/user/testimonies">
       <i class="fa-solid fa-comments"></i>
       <span>Testimony</span>
@@ -138,8 +150,8 @@
 
   <!-- Nav Item - FAQs -->
   <% if(view == "faq") { %>
-  <li class="nav-item active">
-  <% } else { %>
+  <li class="nav-item active"><% } else { %></li>
+
   <li class="nav-item">
     <% } %>
     <a class="nav-link" href="/user/faqs">

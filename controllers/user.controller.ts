@@ -7,6 +7,7 @@ import TestimonyModel from '../models/testimony.model';
 import ServiceModel from '../models/service.model';
 import PortfolioModel from '../models/portfolio.model';
 import RoleModel from '../models/role.model';
+import { User } from '../types/user';
 import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
 import '../types/express.session';
@@ -113,6 +114,108 @@ class UserController {
       req.flash('alertType', 'danger');
       res.redirect('/user/profile');
     }
+  }
+
+  static async teams(req: Request, res: Response) {
+    const user = await UserModel.getUser(req.session.user!.id);
+    const teams = await UserModel.getUsers(req.session.user!.id);
+    const roles = await RoleModel.getAllRoles();
+
+    type UserWithRole = User & { roleName: string };
+    const mappedTeams = [] as UserWithRole[];
+    teams.forEach((team) => {
+      mappedTeams.push({
+        ...team,
+        roleName: roles.find((role) => role.id === team.roleId)!.name,
+      });
+    });
+
+    res.render('user/teams', {
+      title: 'Hivemind | Teams',
+      view: 'teams',
+      user,
+      teams: mappedTeams,
+      roles,
+      alert: {
+        message: req.flash('alertMessage'),
+        type: req.flash('alertType'),
+      },
+    });
+  }
+
+  static async updateTeam(req: Request, res: Response) {
+    try {
+      const id: number = parseInt(req.body.id as string, 10);
+      const team = await UserModel.getUser(id);
+
+      if (req.file) {
+        const oldProfilePhoto = `public/images/${team!.photo}`;
+        access(oldProfilePhoto, constants.F_OK, (err) => {
+          if (!err) unlink(oldProfilePhoto);
+        });
+      }
+
+      await UserModel.updateUser({
+        id,
+        name: req.body.name,
+        username: req.body.username,
+        email: req.body.email,
+        roleId: parseInt(req.body.roleId as string, 10),
+        linkedin: req.body.linkedin,
+        photo: req.file ? req.file.filename : team!.photo,
+      });
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Team was successfully updated');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/user/teams');
+  }
+
+  static async addTeam(req: Request, res: Response) {
+    try {
+      const salt = bcrypt.genSaltSync(8);
+      const password = bcrypt.hashSync(req.body.password, salt);
+
+      await UserModel.addUser({
+        name: req.body.name,
+        username: req.body.username,
+        password,
+        email: req.body.email,
+        linkedin: req.body.linkedin,
+        photo: req.file!.filename,
+        roleId: parseInt(req.body.roleId as string, 10),
+      });
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Team was successfully added');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/user/teams');
+  }
+
+  static async deleteTeam(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const team = await UserModel.getUser(id);
+
+      await unlink(`public/images/${team!.photo}`);
+      await UserModel.deleteUser(id);
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Team was successfully deleted');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/user/teams');
   }
 
   static async subscribers(req: Request, res: Response) {

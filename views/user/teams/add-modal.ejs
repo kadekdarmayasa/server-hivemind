@@ -1,0 +1,101 @@
+<div
+  class="modal fade"
+  id="addTeam"
+  tabindex="-1"
+  aria-labelledby="addTeamLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTeamLabel">Add New Client</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/user/teams?_method=POST" method="post" enctype="multipart/form-data">
+          <div class="form-group" style="margin-top: -10px">
+            <label for="photo">Photo</label>
+            <input
+              type="file"
+              class="form-control"
+              id="photo"
+              name="photo"
+              accept="image/*"
+              placeholder="Select a team photo..."
+              required
+            />
+          </div>
+          <div class="form-group" style="margin-top: -10px">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="Enter name..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="name">Username</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              placeholder="Enter username..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="name">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+              minlength="8"
+              placeholder="Enter password..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="roleId">Role ID</label>
+            <select name="roleId" id="roleId" class="form-control" required>
+              <option value="">---</option>
+              <% roles.forEach((role) => { %>
+              <option value="<%= role.id %>"><%= role.name %> (<%= role.id %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="Enter email address..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="linkedin">Linkedin</label>
+            <input
+              type="text"
+              class="form-control"
+              id="linkedin"
+              name="linkedin"
+              placeholder="Enter linkedin username..."
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Add Team</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

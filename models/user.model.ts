@@ -27,6 +27,21 @@ class UserModel {
     });
   }
 
+  /**
+   *
+   * @param id - id of exclude user
+   */
+  static async getUsers(id: number): Promise<User[]> {
+    return db.user.findMany({
+      where: {
+        id: {
+          not: id,
+        },
+      },
+      select: { ...this._selectTemplate },
+    });
+  }
+
   static async addUser(user: Omit<User, 'id'>): Promise<User> {
     return db.user.create({
       data: { ...user },
@@ -34,7 +49,7 @@ class UserModel {
     });
   }
 
-  static async updateUser(user: Omit<User, 'photo' | 'password'>): Promise<User> {
+  static async updateUser(user: Partial<User>): Promise<User> {
     return db.user.update({
       where: { id: user.id },
       data: { ...(user as Omit<User, 'id' | 'photo' | 'password'>) },

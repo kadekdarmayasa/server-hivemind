@@ -109,3 +109,26 @@ userRouter.put(
   UserController.updatePortfolio,
 );
 userRouter.delete('/portfolios/:id', UserController.deletePortfolio);
+
+userRouter.get('/teams', UserController.teams);
+userRouter.post(
+  '/teams',
+  body('name').trim(),
+  body('username').trim(),
+  body('password').trim(),
+  body('linkedin').trim(),
+  processUpload(multer.upload.single('photo'), '/user/team'),
+  UserController.addTeam,
+);
+userRouter.put(
+  '/teams',
+  body('name').trim(),
+
+  body('name').trim(),
+  body('username').trim(),
+  body('password').trim(),
+  body('linkedin').trim(),
+  processUpload(multer.upload.single('photo'), '/user/team'),
+  UserController.updateTeam,
+);
+userRouter.delete('/teams/:id', UserController.deleteTeam);
