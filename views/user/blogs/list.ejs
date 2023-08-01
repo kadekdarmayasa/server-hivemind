@@ -1,0 +1,46 @@
+<div class="table-responsive">
+  <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Thumbnail</th>
+        <th>Title</th>
+        <th>Slug</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% blogs.forEach((blog) => { %>
+      <tr>
+        <td><%= blog.id %></td>
+        <td>
+          <img
+            src="/public/images/<%= blog.thumbnail  %>"
+            alt="<%= blog.title %>"
+            style="width: 100px"
+          />
+        </td>
+        <td><%= blog.title %></td>
+        <td><%= blog.slug %></td>
+        <td><%= blog.description %></td>
+        <td>
+          <form action="/user/blogs/<%= blog.id %>?_method=DELETE" method="post">
+            <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+              <i class="fas fa-trash"></i>
+            </button>
+            <button
+              type="button"
+              data-toggle="modal"
+              data-target="#updateBlog"
+              class="btn btn-success btn-circle btn-sm update-btn"
+            >
+              <i class="fas fa-edit"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

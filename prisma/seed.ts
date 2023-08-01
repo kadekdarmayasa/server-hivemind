@@ -5,6 +5,8 @@ import { Role } from '../types/role';
 import { Client } from '../types/client';
 import { Testimony } from '../types/testimony';
 import { Service } from '../types/service';
+import { FAQ } from '../types/faq';
+import { Subscriber } from '../types/subscriber';
 
 async function seed() {
   const users = await getUsers();
@@ -12,11 +14,15 @@ async function seed() {
   const services = await getServices();
   const clients = await getClients();
   const testimonies = await getTestimonies();
+  const faqs = await getFAQs();
+  const subscribers = await getSubscribers();
 
   await db.role.createMany({ data: roles });
   await db.client.createMany({ data: clients });
   await db.service.createMany({ data: services });
   await db.testimony.createMany({ data: testimonies });
+  await db.fAQ.createMany({ data: faqs });
+  await db.subscriber.createMany({ data: subscribers });
 
   const rolesInDb = await db.role.findMany();
   for (let i = 0; i < users.length; i++) users[i].roleId = rolesInDb[i].id;
@@ -49,15 +55,6 @@ async function getUsers(): Promise<Omit<User, 'id'>[]> {
       linkedin: 'kadekdarmayasa',
       email: 'darmayasadiputra@gmail.com',
     },
-    {
-      name: 'I Kadek Anggara Putra',
-      username: 'anggara',
-      password: 'anggara123',
-      roleId: 2,
-      photo: 'default-profile.png',
-      linkedin: 'kadekanggara',
-      email: 'kadekanggara@gmail.com',
-    },
   ];
 }
 
@@ -67,7 +64,16 @@ async function getRoles(): Promise<Omit<Role, 'id'>[]> {
       name: 'Admin',
     },
     {
-      name: 'Content Creator',
+      name: 'Digital Marketing Manager',
+    },
+    {
+      name: 'Web Developer Expert',
+    },
+    {
+      name: 'Lead Developer',
+    },
+    {
+      name: 'Sales Manager',
     },
   ];
 }
@@ -199,6 +205,50 @@ async function getServices(): Promise<Omit<Service, 'id'>[]> {
       thumbnail: 'thumbnail-1689734394304.svg',
       description:
         'Our experienced team of developers creates user-friendly, responsive apps that take your business to the next level.',
+    },
+  ];
+}
+
+async function getFAQs(): Promise<Omit<FAQ, 'id'>[]> {
+  return [
+    {
+      question: 'What services does your company offer?',
+      answer:
+        'We offer a wide range of digital marketing services including SEO, PPC, social media marketing, email marketing, web design, and more.',
+    },
+    {
+      question: 'How much does your service cost?',
+      answer:
+        'Our pricing varies depending on the specific service and scope of the project. We provide personalized quotes based on your unique needs and budget.',
+    },
+    {
+      question: 'Do you provide ongoing support and maintenance?',
+      answer:
+        'Yes, we offer ongoing support and maintenance services to ensure that your website or digital presence remains up-to-date and secure.',
+    },
+    {
+      question: 'How can I get started working with your agency?',
+      answer:
+        "The first step is to reach out to us via our contact page or by calling us directly (please pay attention to our business hours). We'll set up an initial consultation to discuss your needs and provide you with a personalized quote and proposal.",
+    },
+    {
+      question: 'How do you measure the success of a project?',
+      answer:
+        'We use a variety of metrics to measure the success of our projects, including website traffic, engagement rates, conversion rates, and more. We work with our clients to establish clear goals and objectives for each project and use these metrics to track progress.',
+    },
+  ];
+}
+
+async function getSubscribers(): Promise<Omit<Subscriber, 'id'>[]> {
+  return [
+    {
+      email: 'darmayasadiputra@gmail.com',
+    },
+    {
+      email: 'nengahsuastini988@gmail.com',
+    },
+    {
+      email: 'nyomandyasa@gmail.com',
     },
   ];
 }

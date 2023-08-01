@@ -97,7 +97,7 @@ userRouter.post(
   body('portfolioName').trim(),
   body('orientation').trim(),
   body('serviceId').isInt(),
-  processUpload(multer.upload.single('thumbnail'), '/user/portfolios'),
+  processUpload(multer.upload.single('portfolioThumbnail'), '/user/portfolios'),
   UserController.addPortfolio,
 );
 userRouter.put(
@@ -105,7 +105,7 @@ userRouter.put(
   body('portfolioName').trim(),
   body('orientation').trim(),
   body('serviceId').isInt(),
-  processUpload(multer.upload.single('thumbnail'), '/user/portfolios'),
+  processUpload(multer.upload.single('portfolioThumbnail'), '/user/portfolios'),
   UserController.updatePortfolio,
 );
 userRouter.delete('/portfolios/:id', UserController.deletePortfolio);
@@ -122,7 +122,7 @@ userRouter.post(
   body('username').trim(),
   body('password').trim(),
   body('linkedin').trim(),
-  processUpload(multer.upload.single('photo'), '/user/team'),
+  processUpload(multer.upload.single('teamPhoto'), '/user/team'),
   UserController.addTeam,
 );
 userRouter.put(
@@ -133,7 +133,28 @@ userRouter.put(
   body('username').trim(),
   body('password').trim(),
   body('linkedin').trim(),
-  processUpload(multer.upload.single('photo'), '/user/team'),
+  processUpload(multer.upload.single('teamPhoto'), '/user/team'),
   UserController.updateTeam,
 );
 userRouter.delete('/teams/:id', UserController.deleteTeam);
+
+userRouter.get('/blogs', UserController.blogs);
+userRouter.post(
+  '/blogs',
+  body('title').trim(),
+  body('slug').trim(),
+  body('description').trim(),
+  body('content').trim(),
+  processUpload(
+    multer.upload.fields([
+      {
+        name: 'blogThumbnail',
+      },
+      {
+        name: 'coverImage',
+      },
+    ]),
+    '/user/blogs',
+  ),
+  UserController.addBlog,
+);

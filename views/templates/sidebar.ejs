@@ -121,6 +121,18 @@
     </a>
   </li>
 
+  <!-- Nav Item - Clients  -->
+  <% if(view == "blog") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/blogs">
+      <i class="fa-solid fa-briefcase"></i>
+      <span>Blogs</span>
+    </a>
+  </li>
+
   <!-- Nav Item - Testimony  -->
   <% if(view == "testimony") { %>
   <li class="nav-item active"><% } else { %></li>

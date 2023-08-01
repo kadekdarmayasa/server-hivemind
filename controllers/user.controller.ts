@@ -7,6 +7,7 @@ import TestimonyModel from '../models/testimony.model';
 import ServiceModel from '../models/service.model';
 import PortfolioModel from '../models/portfolio.model';
 import RoleModel from '../models/role.model';
+import BlogModel from '../models/blog.model';
 import { User } from '../types/user';
 import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
@@ -174,7 +175,6 @@ class UserController {
     res.redirect('/user/roles');
   }
 
-     
   static async teams(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
     const teams = await UserModel.getUsers(req.session.user!.id);
@@ -275,6 +275,55 @@ class UserController {
     }
 
     res.redirect('/user/teams');
+  }
+
+  static async blogs(req: Request, res: Response) {
+    const user = await UserModel.getUser(req.session.user!.id);
+    const services = await ServiceModel.getAllServices();
+    const blogs = await BlogModel.getAllBlogs();
+
+    res.render('user/blogs', {
+      title: 'Hivemind | Blogs',
+      view: 'blog',
+      user,
+      blogs,
+      services,
+      alert: {
+        message: req.flash('alertMessage'),
+        type: req.flash('alertType'),
+      },
+    });
+  }
+
+  static async addBlog(req: Request, res: Response) {
+    try {
+      const thumbnail = (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        'blogThumbnail'
+      ];
+      const coverImage = (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        'coverImage'
+      ];
+
+      await BlogModel.addBlog({
+        title: req.body.title,
+        slug: req.body.slug + '-' + Date.now(),
+        description: req.body.description,
+        content: req.body.content,
+        thumbnail: thumbnail[0].filename,
+        coverImage: coverImage[0].filename,
+        published: false,
+        publishedAt: new Date(),
+        userId: req.session.user!.id,
+      });
+
+      req.flash('alertMessage', 'Blog added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/user/blogs');
   }
 
   static async subscribers(req: Request, res: Response) {

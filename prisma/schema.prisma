@@ -24,17 +24,16 @@ model User {
 
 model Blog {
   id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(100)
+  title       String   @unique @db.VarChar(100)
   slug        String   @unique @db.VarChar(100)
   description String   @db.Text
+  coverImage  String   @map("cover_image") @db.VarChar(100)
   content     String   @db.Text
   thumbnail   String   @db.VarChar(100)
   published   Boolean  @default(false)
-  publishedAt DateTime @map("published_at")
+  publishedAt DateTime @default(now()) @map("published_at")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  service     Service? @relation(fields: [serviceId], references: [id])
-  serviceId   Int?
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
 }
@@ -46,19 +45,18 @@ model Service {
   thumbnail   String      @db.VarChar(100)
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
-  Blog        Blog[]
   Portfolio   Portfolio[]
 }
 
 model Portfolio {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  thumbnail   String   @db.VarChar(100)
-  orientation String   @db.VarChar(100)
-  service     Service  @relation(fields: [serviceId], references: [id])
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  thumbnail   String      @db.VarChar(100)
+  orientation Orientation
+  service     Service     @relation(fields: [serviceId], references: [id])
   serviceId   Int
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
 }
 
 model Testimony {
@@ -93,18 +91,7 @@ model Role {
   User User[]
 }
 
-// enum TeamRole {
-//   WebDeveloper
-//   MobileAppDeveloper
-//   SocialMediaManager
-//   GraphicDesigner
-//   SEOSpecialist
-//   ContentCreator
-//   DigitalStrategist
-//   MarketingDirector
-//   SalesManager
-//   Admin
-// }
-
-// Content creator responsible for create content
-// While admin is responsible to accept or reject the content
+enum Orientation {
+  PORTRAIT
+  LANDSCAPE
+}
