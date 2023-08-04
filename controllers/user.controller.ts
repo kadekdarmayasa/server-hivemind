@@ -13,6 +13,7 @@ import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
 import '../types/express.session';
 import bcrypt from 'bcryptjs';
+import { isFilesEmpty } from '../lib/multer.files';
 
 class UserController {
   static async index(req: Request, res: Response) {
@@ -100,7 +101,7 @@ class UserController {
       const userId = parseInt(req.body.id as string, 10);
       const user = await UserModel.getUser(userId);
 
-      if (req.file) {
+      if (req.file && user!.photo !== 'default-profile.png') {
         const oldPhoto = `public/images/${user!.photo}`;
         access(oldPhoto, constants.F_OK, (err) => {
           if (!err) unlink(oldPhoto);
@@ -317,6 +318,93 @@ class UserController {
       });
 
       req.flash('alertMessage', 'Blog added successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/user/blogs');
+  }
+
+  static async updateBlogView(req: Request, res: Response) {
+    const user = await UserModel.getUser(req.session.user!.id);
+    const services = await ServiceModel.getAllServices();
+
+    const id = parseInt(req.params.id as string, 10);
+    const blog = await BlogModel.getBlog(id);
+
+    res.render('user/blogs', {
+      title: 'Hivemind | Blogs',
+      view: 'blog/update',
+      user,
+      blog,
+      services,
+      alert: {
+        message: req.flash('alertMessage'),
+        type: req.flash('alertType'),
+      },
+    });
+  }
+
+  static async updateBlog(req: Request, res: Response) {
+    try {
+      const id: number = parseInt(req.params.id as string, 10);
+      const blog = await BlogModel.getBlog(id);
+
+      const thumbnail = (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        'blogThumbnail'
+      ];
+      const coverImage = (req.files as { [fieldname: string]: Express.Multer.File[] })[
+        'coverImage'
+      ];
+
+      if (!isFilesEmpty(req.files)) {
+        const oldThumbnail = `public/images/${blog!.thumbnail}`;
+        const oldCoverImage = `public/images/${blog!.coverImage}`;
+
+        access(oldThumbnail, constants.F_OK, (err) => {
+          if (!err) unlink(oldThumbnail);
+        });
+
+        access(oldCoverImage, constants.F_OK, (err) => {
+          if (!err) unlink(oldCoverImage);
+        });
+      }
+
+      await BlogModel.updateBlog({
+        id,
+        title: req.body.title,
+        slug: req.body.slug,
+        description: req.body.description,
+        content: req.body.content,
+        thumbnail: isFilesEmpty(req.files) ? blog!.thumbnail : thumbnail[0].filename,
+        coverImage: isFilesEmpty(req.files) ? blog!.coverImage : coverImage[0].filename,
+        published: req.body.published === 'Yes',
+        publishedAt: blog!.published ? blog!.publishedAt : new Date(),
+        userId: blog!.userId,
+      });
+
+      req.flash('alertMessage', 'Blog updated successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect(`/user/blogs`);
+  }
+
+  static async deleteBlog(req: Request, res: Response) {
+    try {
+      const id: number = parseInt(req.params.id as string);
+      const blog = await BlogModel.getBlog(id);
+
+      await unlink(`public/images/${blog!.thumbnail}`);
+      await unlink(`public/images/${blog!.coverImage}`);
+      await BlogModel.deleteBlog(id);
+
+      req.flash('alertMessage', 'Blog deleted successfully');
       req.flash('alertType', 'success');
     } catch (error: any) {
       req.flash('alertMessage', error.message);

@@ -158,3 +158,24 @@ userRouter.post(
   ),
   UserController.addBlog,
 );
+userRouter.put(
+  '/blogs/update/:id',
+  body('title').trim(),
+  body('slug').trim(),
+  body('description').trim(),
+  body('content').trim(),
+  processUpload(
+    multer.upload.fields([
+      {
+        name: 'blogThumbnail',
+      },
+      {
+        name: 'coverImage',
+      },
+    ]),
+    '/user/blogs',
+  ),
+  UserController.updateBlog,
+);
+userRouter.get('/blogs/update/:id', UserController.updateBlogView);
+userRouter.delete('/blogs/:id', UserController.deleteBlog);

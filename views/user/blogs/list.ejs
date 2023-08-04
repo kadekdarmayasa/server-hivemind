@@ -7,6 +7,7 @@
         <th>Title</th>
         <th>Slug</th>
         <th>Description</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -25,18 +26,23 @@
         <td><%= blog.slug %></td>
         <td><%= blog.description %></td>
         <td>
+          <% if(blog.published) { %>
+          <span class="badge badge-success">Published</span>
+          <% } else { %>
+          <span class="badge badge-danger">Draft</span>
+          <% } %>
+        </td>
+        <td>
           <form action="/user/blogs/<%= blog.id %>?_method=DELETE" method="post">
             <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
               <i class="fas fa-trash"></i>
             </button>
-            <button
-              type="button"
-              data-toggle="modal"
-              data-target="#updateBlog"
+            <a
+              href="/user/blogs/update/<%= blog.id %>"
               class="btn btn-success btn-circle btn-sm update-btn"
             >
               <i class="fas fa-edit"></i>
-            </button>
+            </a>
           </form>
         </td>
       </tr>

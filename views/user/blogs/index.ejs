@@ -8,6 +8,14 @@
       <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">Blogs</h1>
+          <% if (view == 'blog/update') { %>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/user/blogs">Blogs</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Update</li>
+            </ol>
+          </nav>
+          <% } %>
         </div>
 
         <%- include('../../templates/alert.ejs') %>
@@ -15,6 +23,8 @@
         <div class="row">
           <div class="card shadow mb-4 col-md-12">
             <div class="card-body">
+              <% if(view == 'blog/update') { %> <%- include('./update-blog-form.ejs') %> <% } else {
+              %>
               <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                   <button
@@ -63,6 +73,7 @@
                   <%- include('./add-blog-form.ejs') %>
                 </div>
               </div>
+              <% } %>
             </div>
           </div>
         </div>
@@ -76,15 +87,52 @@
   ClassicEditor.create(document.querySelector('#editor')).catch((error) => {
     console.error(error);
   });
-</script>
 
-<script>
-  $('#title').on('change', function () {
-    const title = $('#title').val();
-    const slug = title
-      .toLowerCase()
-      .replace(/[^\w ]+/g, '')
-      .replace(/ +/g, '-');
-    $('#slug').val(slug);
+  ClassicEditor.create(document.querySelector('#updateEditor')).catch((error) => {
+    console.error(error);
+  });
+
+  $('.delete-btn')
+    .toArray()
+    .forEach((deleteButton) => {
+      $(deleteButton).on('click', function (evt) {
+        const confirmation = confirm('Are you sure to delete this blog?');
+        if (!confirmation) evt.preventDefault();
+      });
+    });
+
+  $(window).on('change', function (evt) {
+    const target = evt.target;
+
+    switch (target.id) {
+      case 'title':
+        const title = $(target).val();
+        const slug = title
+          .toLowerCase()
+          .replace(/[^\w ]+/g, '')
+          .replace(/ +/g, '-');
+        $('#slug').val(slug);
+        break;
+
+      case 'thumbnail':
+        const file = $(target).get(0).files;
+        const reader = new FileReader();
+        reader.readAsDataURL(file[0]);
+
+        $(reader).on('loadend', function (evt) {
+          $('.thumbnail-preview img').attr('src', evt.target.result);
+        });
+        break;
+
+      case 'coverImage':
+        const coverImageFile = $(target).get(0).files;
+        const coverImageReader = new FileReader();
+        coverImageReader.readAsDataURL(coverImageFile[0]);
+
+        $(coverImageReader).on('loadend', function (evt) {
+          $('.cover-image-preview img').attr('src', evt.target.result);
+        });
+        break;
+    }
   });
 </script>

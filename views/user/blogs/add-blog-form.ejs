@@ -1,4 +1,7 @@
 <form action="/user/blogs?_method=POST" method="post" enctype="multipart/form-data">
+  <div class="thumbnail-preview">
+    <img src="" alt="" width="300" />
+  </div>
   <div class="form-group">
     <label for="thumbnail">Thumbnail</label>
     <input
@@ -36,8 +39,11 @@
     <label for="description">Description</label>
     <textarea class="form-control" name="description" id="description" rows="3" required></textarea>
   </div>
+  <div class="cover-image-preview">
+    <img src="" alt="" width="600" />
+  </div>
   <div class="form-group">
-    <label for="coverImage">Content Image</label>
+    <label for="coverImage">Cover Image</label>
     <input
       type="file"
       class="form-control"
