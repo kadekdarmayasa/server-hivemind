@@ -79,6 +79,58 @@
     </a>
   </li>
 
+  <hr class="sidebar-divider" />
+
+  <div class="sidebar-heading">Others</div>
+
+  <!-- Nav Item - Clients  -->
+  <% if(view == "client") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/clients">
+      <i class="fa-solid fa-briefcase"></i>
+      <span>Clients</span>
+    </a>
+  </li>
+
+  <!-- Nav Item - Blogs  -->
+  <% if(view == "blog") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/blogs">
+      <i class="fa-solid fa-file-pen"></i>
+      <span>Blogs</span>
+    </a>
+  </li>
+
+  <!-- Nav Item - Testimony  -->
+  <% if(view == "testimony") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/testimonies">
+      <i class="fa-solid fa-comments"></i>
+      <span>Testimony</span>
+    </a>
+  </li>
+
+  <!-- Nav Item - FAQs -->
+  <% if(view == "faq") { %>
+  <li class="nav-item active"><% } else { %></li>
+
+  <li class="nav-item">
+    <% } %>
+    <a class="nav-link" href="/user/faqs">
+      <i class="fa-solid fa-circle-question"></i>
+      <span>FAQs</span>
+    </a>
+  </li>
+
   <!-- Nav Item - Subscribers -->
   <% if(view == "subscriber") { %>
   <li class="nav-item active"><% } else { %></li>
@@ -107,58 +159,6 @@
         <a class="collapse-item" href="/user/newstellers">Newstellers</a>
       </div>
     </div>
-  </li>
-
-  <!-- Nav Item - Clients  -->
-  <% if(view == "client") { %>
-  <li class="nav-item active"><% } else { %></li>
-
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/clients">
-      <i class="fa-solid fa-briefcase"></i>
-      <span>Clients</span>
-    </a>
-  </li>
-
-  <!-- Nav Item - Clients  -->
-  <% if(view == "blog") { %>
-  <li class="nav-item active"><% } else { %></li>
-
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/blogs">
-      <i class="fa-solid fa-file-pen"></i>
-      <span>Blogs</span>
-    </a>
-  </li>
-
-  <!-- Nav Item - Testimony  -->
-  <% if(view == "testimony") { %>
-  <li class="nav-item active"><% } else { %></li>
-
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/testimonies">
-      <i class="fa-solid fa-comments"></i>
-      <span>Testimony</span>
-    </a>
-  </li>
-
-  <hr class="sidebar-divider" />
-
-  <div class="sidebar-heading">Others</div>
-
-  <!-- Nav Item - FAQs -->
-  <% if(view == "faq") { %>
-  <li class="nav-item active"><% } else { %></li>
-
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/faqs">
-      <i class="fa-solid fa-circle-question"></i>
-      <span>FAQs</span>
-    </a>
   </li>
 
   <!-- Divider -->
