@@ -179,3 +179,4 @@ userRouter.put(
 );
 userRouter.get('/blogs/update/:id', UserController.updateBlogView);
 userRouter.delete('/blogs/:id', UserController.deleteBlog);
+userRouter.put('/blogs/publish', UserController.publishBlog);
