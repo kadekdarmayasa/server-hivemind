@@ -1,6 +1,10 @@
-<form action="/user/blogs/update/<%= blog.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+<form
+  action="/user/blogs/update/<%= blog.id %>?_method=PUT"
+  method="POST"
+  enctype="multipart/form-data"
+>
   <div class="thumbnail-preview">
-    <img src="/public/images/<%= blog.thumbnail %>" alt="<%= blog.title %>" width="300">
+    <img src="/public/images/<%= blog.thumbnail %>" alt="<%= blog.title %>" width="300" />
   </div>
   <div class="form-group">
     <label for="thumbnail">Thumbnail</label>
@@ -31,18 +35,13 @@
     />
   </div>
   <div class="form-group">
-    <label for="pubslished">Published</label>
-    <select name="published" id="pubslished" class="form-control" required>
-      <option value="Yes" <%= blog.published == 1 ? 'selected' : '' %>>Yes</option>
-      <option value="No" <%= blog.published == 0 ? 'selected' : '' %>>No</option>
-    </select>
-  </div>
-  <div class="form-group">
     <label for="description">Description</label>
-    <textarea class="form-control" name="description" id="description" rows="3" required><%= blog.description %></textarea>
+    <textarea class="form-control" name="description" id="description" rows="3" required>
+<%= blog.description %></textarea
+    >
   </div>
   <div class="cover-image-preview">
-    <img src="/public/images/<%= blog.coverImage %>" alt="<%= blog.title %>" width="600">
+    <img src="/public/images/<%= blog.coverImage %>" alt="<%= blog.title %>" width="600" />
   </div>
   <div class="form-group">
     <label for="coverImage">Cover Image</label>

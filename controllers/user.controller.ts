@@ -14,6 +14,9 @@ import { access, constants } from 'node:fs';
 import '../types/express.session';
 import bcrypt from 'bcryptjs';
 import { isFilesEmpty } from '../lib/multer.files';
+import { transporter } from '../lib/nodemailer.transport';
+import { createEmailTemplate } from '../src/templates/template-creator';
+import { notifySubcribers } from '../lib/notify.subscriber';
 
 class UserController {
   static async index(req: Request, res: Response) {
@@ -328,36 +331,37 @@ class UserController {
   }
 
   static async updateBlogView(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const services = await ServiceModel.getAllServices();
+    try {
+      const user = await UserModel.getUser(req.session.user!.id);
+      const services = await ServiceModel.getAllServices();
+      const id = parseInt(req.params.id as string, 10);
+      const blog = await BlogModel.getBlog(id);
 
-    const id = parseInt(req.params.id as string, 10);
-    const blog = await BlogModel.getBlog(id);
-
-    res.render('user/blogs', {
-      title: 'Hivemind | Blogs',
-      view: 'blog/update',
-      user,
-      blog,
-      services,
-      alert: {
-        message: req.flash('alertMessage'),
-        type: req.flash('alertType'),
-      },
-    });
+      res.render('user/blogs', {
+        title: 'Hivemind | Blogs',
+        view: 'blog/update',
+        user,
+        blog,
+        services,
+        alert: {
+          message: req.flash('alertMessage'),
+          type: req.flash('alertType'),
+        },
+      });
+    } catch (err: any) {
+      req.flash('alertMessage', err.message);
+      req.flash('alertType', 'danger');
+      res.redirect('/user/blogs');
+    }
   }
 
   static async updateBlog(req: Request, res: Response) {
     try {
       const id: number = parseInt(req.params.id as string, 10);
       const blog = await BlogModel.getBlog(id);
-
-      const thumbnail = (req.files as { [fieldname: string]: Express.Multer.File[] })[
-        'blogThumbnail'
-      ];
-      const coverImage = (req.files as { [fieldname: string]: Express.Multer.File[] })[
-        'coverImage'
-      ];
+      const reqFiles = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const thumbnail = reqFiles['blogThumbnail'][0];
+      const coverImage = reqFiles['coverImage'][0];
 
       if (!isFilesEmpty(req.files)) {
         const oldThumbnail = `public/images/${blog!.thumbnail}`;
@@ -378,9 +382,9 @@ class UserController {
         slug: req.body.slug,
         description: req.body.description,
         content: req.body.content,
-        thumbnail: isFilesEmpty(req.files) ? blog!.thumbnail : thumbnail[0].filename,
-        coverImage: isFilesEmpty(req.files) ? blog!.coverImage : coverImage[0].filename,
-        published: req.body.published === 'Yes',
+        thumbnail: isFilesEmpty(req.files) ? blog!.thumbnail : thumbnail.filename,
+        coverImage: isFilesEmpty(req.files) ? blog!.coverImage : coverImage.filename,
+        published: blog!.published,
         publishedAt: blog!.published ? blog!.publishedAt : new Date(),
         userId: blog!.userId,
       });
@@ -405,6 +409,37 @@ class UserController {
       await BlogModel.deleteBlog(id);
 
       req.flash('alertMessage', 'Blog deleted successfully');
+      req.flash('alertType', 'success');
+    } catch (error: any) {
+      req.flash('alertMessage', error.message);
+      req.flash('alertType', 'danger');
+    }
+
+    res.redirect('/user/blogs');
+  }
+
+  static async publishBlog(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.body.id as string, 10);
+      const blog = await BlogModel.getBlog(id);
+
+      await BlogModel.updateBlog({
+        id,
+        title: blog!.title,
+        slug: blog!.slug,
+        description: blog!.description,
+        content: blog!.content,
+        thumbnail: blog!.thumbnail,
+        coverImage: blog!.coverImage,
+        published: true,
+        publishedAt: new Date(),
+        userId: blog!.userId,
+      });
+
+      const subscribers = await SubscriberModel.getAllSubscribers();
+      notifySubcribers(subscribers, blog!);
+
+      req.flash('alertMessage', 'Blog published successfully');
       req.flash('alertType', 'success');
     } catch (error: any) {
       req.flash('alertMessage', error.message);
