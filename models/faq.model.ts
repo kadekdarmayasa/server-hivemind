@@ -9,20 +9,20 @@ class FAQModel {
   };
 
   static async getAllFAQs(): Promise<FAQ[]> {
-    return db.fAQ.findMany({
+    return db.faq.findMany({
       select: { ...this._selectTemplate },
     });
   }
 
   static async getFAQ(id: number): Promise<FAQ | null> {
-    return db.fAQ.findFirst({
+    return db.faq.findFirst({
       where: { id },
       select: { ...this._selectTemplate },
     });
   }
 
   static async updateFAQ({ id, question, answer }: FAQ): Promise<FAQ> {
-    return db.fAQ.update({
+    return db.faq.update({
       where: { id },
       data: { question, answer },
       select: { ...this._selectTemplate },
@@ -30,14 +30,14 @@ class FAQModel {
   }
 
   static async addFAQ({ question, answer }: Omit<FAQ, 'id'>): Promise<FAQ> {
-    return db.fAQ.create({
+    return db.faq.create({
       data: { question, answer },
       select: { ...this._selectTemplate },
     });
   }
 
   static async deleteFAQ(id: number): Promise<void> {
-    await db.fAQ.delete({ where: { id } });
+    await db.faq.delete({ where: { id } });
   }
 }
 

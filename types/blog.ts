@@ -4,9 +4,9 @@ export interface Blog {
   slug: string;
   description: string;
   content: string;
-  coverImage: string;
+  cover_image: string;
   thumbnail: string;
   published: boolean;
-  publishedAt: Date | string;
+  published_at: Date | string;
   userId: number;
 }

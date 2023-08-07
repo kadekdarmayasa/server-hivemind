@@ -4,7 +4,9 @@ export interface User {
   username: string;
   password: string;
   roleId: number;
+  roleName?: string;
   photo: string | null;
+  public_photo: string | null;
   email: string | null;
   linkedin: string | null;
 }

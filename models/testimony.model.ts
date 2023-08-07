@@ -4,8 +4,8 @@ import { Testimony } from '../types/testimony';
 class TestimonyModel {
   static _selectTemplate = {
     id: true,
-    clientName: true,
-    clientPhoto: true,
+    client_name: true,
+    client_photo: true,
     occupation: true,
     message: true,
     rate: true,

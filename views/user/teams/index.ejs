@@ -8,9 +8,12 @@
       <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">Teams</h1>
+
+          <% if(user.roleName === 'Admin') { %>
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTeam">
             Add Team
           </button>
+          <% } %>
         </div>
 
         <%- include('../../templates/alert.ejs') %>
@@ -29,7 +32,9 @@
                       <th>Role</th>
                       <th>Email</th>
                       <th>Linkedin</th>
+                      <% if(user.roleName === 'Admin') { %>
                       <th>Actions</th>
+                      <% } %>
                     </tr>
                   </thead>
                   <tbody>
@@ -38,16 +43,21 @@
                       <td><%= team.id %></td>
                       <td>
                         <img
-                          src="/public/images/<%= team.photo  %>"
+                          src="/public/images/<%= team.public_photo  %>"
                           alt="<%= team.name %>"
                           style="width: 50px"
                         />
                       </td>
-                      <td><%= team.name %></td>
+                      <td>
+                        <%= team.name %> <% if(user.id === team.id) { %>
+                        <span class="badge badge-success badge-pill">You</span>
+                        <% } %>
+                      </td>
                       <td><%= team.username %></td>
                       <td><%= team.roleName %></td>
                       <td><%= team.email %></td>
                       <td><%= team.linkedin %></td>
+                      <% if(user.roleName === 'Admin') { %>
                       <td>
                         <form action="/user/teams/<%= team.id %>?_method=DELETE" method="post">
                           <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
@@ -69,6 +79,7 @@
                           </button>
                         </form>
                       </td>
+                      <% } %>
                     </tr>
                     <% }) %>
                   </tbody>

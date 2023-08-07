@@ -14,8 +14,6 @@ import { access, constants } from 'node:fs';
 import '../types/express.session';
 import bcrypt from 'bcryptjs';
 import { isFilesEmpty } from '../lib/multer.files';
-import { transporter } from '../lib/nodemailer.transport';
-import { createEmailTemplate } from '../src/templates/template-creator';
 import { notifySubcribers } from '../lib/notify.subscriber';
 
 class UserController {
@@ -25,11 +23,19 @@ class UserController {
 
   static async dashboard(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
+    const totalTeams = (await UserModel.getUsers()).length;
+    const totalServices = (await ServiceModel.getAllServices()).length;
+    const totalPortfolios = (await PortfolioModel.getAllPortfolios()).length;
+    const totalClients = (await ClientModel.getAllClients()).length;
 
     res.render(`user/dashboard`, {
       title: 'Hivemind | Dashboard',
       view: 'dashboard',
       user,
+      totalTeams,
+      totalServices,
+      totalPortfolios,
+      totalClients,
     });
   }
 
@@ -181,16 +187,15 @@ class UserController {
 
   static async teams(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
-    const teams = await UserModel.getUsers(req.session.user!.id);
+    const teams = await UserModel.getUsers();
     const roles = await RoleModel.getAllRoles();
 
     type UserWithRole = User & { roleName: string };
     const mappedTeams = [] as UserWithRole[];
     teams.forEach((team) => {
-      mappedTeams.push({
-        ...team,
-        roleName: roles.find((role) => role.id === team.roleId)!.name,
-      });
+      const roleName = roles.find((role) => role.id === team.roleId)!.name;
+      if (user!.roleId === team.roleId) user!.roleName = roleName;
+      if (roleName !== 'Admin') mappedTeams.push({ ...team, roleName });
     });
 
     res.render('user/teams', {
@@ -212,9 +217,9 @@ class UserController {
       const team = await UserModel.getUser(id);
 
       if (req.file) {
-        const oldProfilePhoto = `public/images/${team!.photo}`;
-        access(oldProfilePhoto, constants.F_OK, (err) => {
-          if (!err) unlink(oldProfilePhoto);
+        const oldPublicPhoto = `public/images/${team!.public_photo}`;
+        access(oldPublicPhoto, constants.F_OK, (err) => {
+          if (!err) unlink(oldPublicPhoto);
         });
       }
 
@@ -225,7 +230,7 @@ class UserController {
         email: req.body.email,
         roleId: parseInt(req.body.roleId as string, 10),
         linkedin: req.body.linkedin,
-        photo: req.file ? req.file.filename : team!.photo,
+        public_photo: req.file ? req.file.filename : team!.public_photo,
       });
 
       req.flash('alertType', 'success');
@@ -249,7 +254,8 @@ class UserController {
         password,
         email: req.body.email,
         linkedin: req.body.linkedin,
-        photo: req.file!.filename,
+        photo: 'default-profile.png',
+        public_photo: req.file!.filename,
         roleId: parseInt(req.body.roleId as string, 10),
       });
 
@@ -269,6 +275,7 @@ class UserController {
       const team = await UserModel.getUser(id);
 
       await unlink(`public/images/${team!.photo}`);
+      await unlink(`public/images/${team!.public_photo}`);
       await UserModel.deleteUser(id);
 
       req.flash('alertType', 'success');
@@ -314,9 +321,9 @@ class UserController {
         description: req.body.description,
         content: req.body.content,
         thumbnail: thumbnail[0].filename,
-        coverImage: coverImage[0].filename,
+        cover_image: coverImage[0].filename,
         published: false,
-        publishedAt: new Date(),
+        published_at: new Date(),
         userId: req.session.user!.id,
       });
 
@@ -365,7 +372,7 @@ class UserController {
 
       if (!isFilesEmpty(req.files)) {
         const oldThumbnail = `public/images/${blog!.thumbnail}`;
-        const oldCoverImage = `public/images/${blog!.coverImage}`;
+        const oldCoverImage = `public/images/${blog!.cover_image}`;
 
         access(oldThumbnail, constants.F_OK, (err) => {
           if (!err) unlink(oldThumbnail);
@@ -383,9 +390,9 @@ class UserController {
         description: req.body.description,
         content: req.body.content,
         thumbnail: isFilesEmpty(req.files) ? blog!.thumbnail : thumbnail.filename,
-        coverImage: isFilesEmpty(req.files) ? blog!.coverImage : coverImage.filename,
+        cover_image: isFilesEmpty(req.files) ? blog!.cover_image : coverImage.filename,
         published: blog!.published,
-        publishedAt: blog!.published ? blog!.publishedAt : new Date(),
+        published_at: blog!.published ? blog!.published_at : new Date(),
         userId: blog!.userId,
       });
 
@@ -405,7 +412,7 @@ class UserController {
       const blog = await BlogModel.getBlog(id);
 
       await unlink(`public/images/${blog!.thumbnail}`);
-      await unlink(`public/images/${blog!.coverImage}`);
+      await unlink(`public/images/${blog!.cover_image}`);
       await BlogModel.deleteBlog(id);
 
       req.flash('alertMessage', 'Blog deleted successfully');
@@ -430,9 +437,9 @@ class UserController {
         description: blog!.description,
         content: blog!.content,
         thumbnail: blog!.thumbnail,
-        coverImage: blog!.coverImage,
+        cover_image: blog!.cover_image,
         published: true,
-        publishedAt: new Date(),
+        published_at: new Date(),
         userId: blog!.userId,
       });
 
@@ -651,8 +658,8 @@ class UserController {
   static async addTestimony(req: Request, res: Response) {
     try {
       await TestimonyModel.addTestimony({
-        clientName: req.body.clientName,
-        clientPhoto: req.file!.filename,
+        client_name: req.body.clientName,
+        client_photo: req.file!.filename,
         occupation: req.body.occupation,
         message: req.body.message,
         rate: parseFloat(req.body.rate as string),
@@ -674,7 +681,7 @@ class UserController {
       const testimony = await TestimonyModel.getTestimony(id);
 
       if (req.file) {
-        const oldClientPhoto = `public/images/${testimony!.clientPhoto}`;
+        const oldClientPhoto = `public/images/${testimony!.client_photo}`;
         access(oldClientPhoto, constants.F_OK, (err) => {
           if (!err) unlink(oldClientPhoto);
         });
@@ -682,8 +689,8 @@ class UserController {
 
       await TestimonyModel.updateTestimony({
         id,
-        clientName: req.body.clientName,
-        clientPhoto: req.file ? req.file.filename : testimony!.clientPhoto,
+        client_name: req.body.clientName,
+        client_photo: req.file ? req.file.filename : testimony!.client_photo,
         occupation: req.body.occupation,
         message: req.body.message,
         rate: parseFloat(req.body.rate as string),
@@ -704,7 +711,7 @@ class UserController {
     try {
       const testimony = await TestimonyModel.getTestimony(parseInt(req.params.id as string, 10));
 
-      await unlink(`public/images/${testimony!.clientPhoto}`);
+      await unlink(`public/images/${testimony!.client_photo}`);
       await TestimonyModel.deleteTestimony(parseInt(req.params.id as string, 10));
 
       req.flash('alertMessage', 'Testimony deleted successfully');

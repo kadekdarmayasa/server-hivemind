@@ -10,6 +10,7 @@ class UserModel {
     roleId: true,
     photo: true,
     email: true,
+    public_photo: true,
     linkedin: true,
   };
 
@@ -31,7 +32,9 @@ class UserModel {
    *
    * @param id - id of exclude user
    */
-  static async getUsers(id: number): Promise<User[]> {
+  static async getUsers(id?: number): Promise<User[]> {
+    if (!id) return db.user.findMany({ select: { ...this._selectTemplate } });
+
     return db.user.findMany({
       where: {
         id: {

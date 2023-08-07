@@ -1,7 +1,7 @@
 export interface Testimony {
   id: number;
-  clientName: string;
-  clientPhoto: string;
+  client_name: string;
+  client_photo: string;
   occupation: string;
   message: string;
   rate: number;

@@ -37,10 +37,10 @@ class BlogModel {
         slug: true,
         description: true,
         content: true,
-        coverImage: true,
+        cover_image: true,
         thumbnail: true,
         published: true,
-        publishedAt: true,
+        published_at: true,
         userId: true,
       },
     });
@@ -57,7 +57,7 @@ class BlogModel {
         slug: true,
         description: true,
         content: true,
-        coverImage: true,
+        cover_image: true,
         published: true,
       },
     });

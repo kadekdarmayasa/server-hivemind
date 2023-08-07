@@ -2,6 +2,6 @@ export interface Portfolio {
   id: number;
   name: string;
   thumbnail: string;
-  orientation: 'LANDSCAPE' | 'PORTRAIT';
+  orientation: string;
   serviceId: number;
 }

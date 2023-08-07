@@ -7,91 +7,93 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(100)
-  username  String   @unique @db.VarChar(100)
-  password  String   @db.VarChar(255)
-  role      Role     @relation(fields: [roleId], references: [id])
-  roleId    Int
-  photo     String?  @db.VarChar(100)
-  email     String?  @unique @db.VarChar(100)
-  linkedin  String?  @unique @db.VarChar(100)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  Blog      Blog[]
+model blog {
+  id           Int      @id @default(autoincrement())
+  title        String   @unique(map: "Blog_title_key") @db.VarChar(100)
+  slug         String   @unique(map: "Blog_slug_key") @db.VarChar(100)
+  description  String   @db.Text
+  cover_image  String   @db.VarChar(100)
+  content      String   @db.Text
+  thumbnail    String   @db.VarChar(100)
+  published    Boolean  @default(false)
+  published_at DateTime @default(now())
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  userId       Int
+  user         user     @relation(fields: [userId], references: [id], map: "Blog_userId_fkey")
+
+  @@index([userId], map: "Blog_userId_fkey")
 }
 
-model Blog {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique @db.VarChar(100)
-  slug        String   @unique @db.VarChar(100)
-  description String   @db.Text
-  coverImage  String   @map("cover_image") @db.VarChar(100)
-  content     String   @db.Text
-  thumbnail   String   @db.VarChar(100)
-  published   Boolean  @default(false)
-  publishedAt DateTime @default(now()) @map("published_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
-}
-
-model Service {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique @db.VarChar(100)
-  description String      @db.Text
-  thumbnail   String      @db.VarChar(100)
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  Portfolio   Portfolio[]
-}
-
-model Portfolio {
-  id          Int         @id @default(autoincrement())
-  name        String      @db.VarChar(100)
-  thumbnail   String      @db.VarChar(100)
-  orientation Orientation
-  service     Service     @relation(fields: [serviceId], references: [id])
-  serviceId   Int
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-}
-
-model Testimony {
-  id          Int    @id @default(autoincrement())
-  clientName  String @map("client_name") @db.VarChar(100)
-  clientPhoto String @map("client_photo") @db.VarChar(100)
-  occupation  String @db.VarChar(100)
-  message     String @db.Text
-  rate        Float  @db.Double
-}
-
-model Client {
+model client {
   id   Int    @id @default(autoincrement())
   logo String @db.VarChar(100)
   name String @db.VarChar(100)
 }
 
-model FAQ {
+model faq {
   id       Int    @id @default(autoincrement())
   question String @db.VarChar(100)
   answer   String @db.Text
 }
 
-model Subscriber {
+model portfolio {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  thumbnail   String   @db.VarChar(100)
+  orientation String
+  serviceId   Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  service     service  @relation(fields: [serviceId], references: [id], map: "Portfolio_serviceId_fkey")
+
+  @@index([serviceId], map: "Portfolio_serviceId_fkey")
+}
+
+model role {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(100)
+  user user[]
+}
+
+model service {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique(map: "Service_name_key") @db.VarChar(100)
+  description String      @db.Text
+  thumbnail   String      @db.VarChar(100)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  portfolio   portfolio[]
+}
+
+model subscriber {
   id    Int    @id @default(autoincrement())
   email String @db.VarChar(100)
 }
 
-model Role {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(100)
-  User User[]
+model testimony {
+  id           Int    @id @default(autoincrement())
+  client_name  String @db.VarChar(100)
+  client_photo String @db.VarChar(100)
+  occupation   String @db.VarChar(100)
+  message      String @db.Text
+  rate         Float
 }
 
-enum Orientation {
-  PORTRAIT
-  LANDSCAPE
+model user {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  username     String   @unique(map: "User_username_key") @db.VarChar(100)
+  password     String   @db.VarChar(255)
+  roleId       Int
+  photo        String?  @db.VarChar(100)
+  public_photo String?  @db.VarChar(100)
+  email        String?  @unique(map: "User_email_key") @db.VarChar(100)
+  linkedin     String?  @unique(map: "User_linkedin_key") @db.VarChar(100)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  blog         blog[]
+  role         role     @relation(fields: [roleId], references: [id], map: "User_roleId_fkey")
+
+  @@index([roleId], map: "User_roleId_fkey")
 }

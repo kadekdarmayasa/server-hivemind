@@ -67,13 +67,13 @@
                 />
               </div>
               <div class="form-group">
-                <label for="roleId">Role ID</label>
+                <label for="roleId">Role</label>
                 <select name="roleId" id="roleId" class="form-control" required>
                   <option value="">---</option>
                   <% roles.forEach((role) => { %> <% if(role.id === user.roleId) { %>
-                  <option value="<%= role.id %>" selected><%= role.name %> (<%= role.id %>)</option>
+                  <option value="<%= role.id %>" selected><%= role.name %></option>
                   <% } else { %>
-                  <option value="<%= role.id %>"><%= role.name %> (<%= role.id %>)</option>
+                  <option value="<%= role.id %>"><%= role.name %></option>
                   <% } %> <% }) %>
                 </select>
               </div>

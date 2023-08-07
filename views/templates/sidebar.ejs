@@ -131,34 +131,16 @@
     </a>
   </li>
 
-  <!-- Nav Item - Subscribers -->
+  <!-- Nav Item - Subcribers -->
   <% if(view == "subscriber") { %>
   <li class="nav-item active"><% } else { %></li>
 
   <li class="nav-item">
     <% } %>
-    <a
-      class="nav-link collapsed"
-      href="javascript:void(0);"
-      data-toggle="collapse"
-      data-target="#collapseTwo"
-      aria-expanded="true"
-      aria-controls="collapseTwo"
-    >
+    <a class="nav-link" href="/user/subscribers">
       <i class="fa-solid fa-bell"></i>
       <span>Subcribers</span>
     </a>
-    <div
-      id="collapseTwo"
-      class="collapse"
-      aria-labelledby="headingTwo"
-      data-parent="#accordionSidebar"
-    >
-      <div class="bg-white py-2 collapse-inner rounded">
-        <a class="collapse-item" href="/user/subscribers">Subscribers</a>
-        <a class="collapse-item" href="/user/newstellers">Newstellers</a>
-      </div>
-    </div>
   </li>
 
   <!-- Divider -->
