@@ -1,0 +1,13 @@
+<%- include('templates/header.ejs') %>
+
+<div class="container d-flex justify-content-center" style="min-height: 100vh">
+  <div class="row justify-content-center align-items-center">
+    <div class="col text-center">
+      <h1><%= error.message %></h1>
+      <p>Oops!! An error was occured, please try again.</p>
+      <a href="/">Back</a>
+    </div>
+  </div>
+</div>
+
+<%- include('templates/scripts.ejs') %>

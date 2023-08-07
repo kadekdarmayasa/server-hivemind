@@ -10,6 +10,7 @@ import path from 'path';
 import { indexRouter } from './routes/index.route';
 import { userRouter } from './routes/user.route';
 import { authRouter } from './routes/auth.route';
+import { errorRouter } from './routes/error.route';
 
 dotenv.config();
 
@@ -49,7 +50,6 @@ app.use('/cropper', express.static(path.join(__dirname, 'node_modules/cropperjs/
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
+app.use(errorRouter);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
-});
+app.listen(process.env.PORT);
