@@ -8,9 +8,12 @@
       <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">Team Roles</h1>
+
+          <% if(user.roleName === 'Admin') { %>
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRole">
             Add New Role
           </button>
+          <% } %>
         </div>
 
         <%- include('../../templates/alert.ejs') %>
@@ -24,7 +27,9 @@
                     <tr>
                       <th>ID</th>
                       <th>Role Name</th>
+                      <% if(user.roleName === 'Admin') { %>
                       <th>Actions</th>
+                      <% } %>
                     </tr>
                   </thead>
                   <tbody>
@@ -32,6 +37,7 @@
                     <tr>
                       <td><%= role.id %></td>
                       <td><%= role.name %></td>
+                      <% if(user.roleName === 'Admin') { %>
                       <td>
                         <form action="/user/roles/<%= role.id %>?_method=DELETE" method="post">
                           <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
@@ -49,6 +55,7 @@
                           </button>
                         </form>
                       </td>
+                      <% } %>
                     </tr>
                     <% }) %>
                   </tbody>

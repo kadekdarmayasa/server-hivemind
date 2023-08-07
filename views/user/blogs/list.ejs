@@ -45,7 +45,7 @@
             </a>
           </form>
 
-          <% if(!blog.published) { %>
+          <% if(!blog.published && user.roleName === 'Admin') { %>
           <form action="/user/blogs/publish?_method=PUT" method="post" class="mt-2">
             <input type="hidden" id="id" name="id" value="<%= blog.id %>" />
             <button type="submit" class="btn btn-primary btn-sm">Publish</button>

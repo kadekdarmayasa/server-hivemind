@@ -11,6 +11,7 @@ class BlogModel {
         slug: true,
         description: true,
         published: true,
+        userId: true,
       },
     });
   }

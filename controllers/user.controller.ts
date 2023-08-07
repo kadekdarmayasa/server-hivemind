@@ -128,6 +128,10 @@ class UserController {
     const user = await UserModel.getUser(req.session.user!.id);
     const roles = await RoleModel.getAllRoles();
 
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
+
     res.render('user/roles', {
       title: 'Hivemind | Roles',
       view: 'teams',
@@ -289,6 +293,11 @@ class UserController {
     const user = await UserModel.getUser(req.session.user!.id);
     const services = await ServiceModel.getAllServices();
     const blogs = await BlogModel.getAllBlogs();
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/blogs', {
       title: 'Hivemind | Blogs',
@@ -456,6 +465,11 @@ class UserController {
   static async subscribers(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
     const subscribers = await SubscriberModel.getAllSubscribers();
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/subscribers', {
       title: 'Hivemind | Subscribers',
@@ -521,6 +535,11 @@ class UserController {
   static async faqs(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
     const faqs = await FAQModel.getAllFAQs();
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/faqs', {
       title: 'Hivemind | FAQs',
@@ -588,6 +607,11 @@ class UserController {
   static async clients(req: Request, res: Response) {
     const user = await UserModel.getUser(req.session.user!.id);
     const clients = await ClientModel.getAllClients();
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/clients', {
       title: 'Hivemind | Clients',
@@ -639,6 +663,11 @@ class UserController {
   static async testimonies(req: Request, res: Response) {
     const testimonies = await TestimonyModel.getAllTestimony();
     const user = await UserModel.getUser(req.session.user!.id);
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/testimonies', {
       title: 'Hivemind | Testimony',
@@ -724,6 +753,11 @@ class UserController {
   static async services(req: Request, res: Response) {
     const services = await ServiceModel.getAllServices();
     const user = await UserModel.getUser(req.session.user!.id);
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/services', {
       title: 'Hivemind | Services',
@@ -809,6 +843,11 @@ class UserController {
     const portfolios = await PortfolioModel.getAllPortfolios();
     const services = await ServiceModel.getAllServices();
     const user = await UserModel.getUser(req.session.user!.id);
+    const roles = await RoleModel.getAllRoles();
+
+    roles.forEach((role) => {
+      if (user!.roleId === role.id) user!.roleName = role.name;
+    });
 
     res.render('user/portfolios', {
       title: 'Hivemind | Portfolio',
