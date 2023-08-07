@@ -247,6 +247,21 @@
               },
             }).then(() => location.reload());
           },
+          error: function (err) {
+            Swal.fire({
+              icon: 'error',
+              title: err.responseJSON.message,
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+              },
+            }).then(() => location.reload());
+          },
         });
       });
     });
@@ -293,10 +308,14 @@
           });
         },
         error: function (err) {
-          const { responseJSON } = err;
-          $('#error-current-password').text(responseJSON.message);
+          $('#error-current-password').text(err.responseJSON.message);
+          $('#current-password').val('');
           $('#new-password').val('');
           $('#confirm-password').val('');
+
+          setTimeout(() => {
+            $('#error-current-password').text('');
+          }, 3000);
         },
       });
     });

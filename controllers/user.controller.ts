@@ -118,12 +118,9 @@ class UserController {
       }
 
       await UserModel.updatePhotoProfile(userId, req.file!.filename);
-
       return res.status(200).json({ message: 'Photo profile updated successfully' });
     } catch (error: any) {
-      req.flash('alertMessage', error.message);
-      req.flash('alertType', 'danger');
-      res.redirect('/user/profile');
+      return res.status(400).json({ message: error.message });
     }
   }
 
