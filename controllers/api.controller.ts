@@ -79,8 +79,8 @@ class ApiController {
 
   static async getImage(req: Request, res: Response) {
     try {
-      const { name } = req.params;
-      const image = path.join(__dirname, `../public/images/${name}`);
+      const { filename } = req.params;
+      const image = path.join(__dirname, `../public/images/${filename}`);
 
       access(image, constants.F_OK, (err) => {
         if (err) {
