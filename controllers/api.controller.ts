@@ -109,23 +109,33 @@ class ApiController {
       const page: number = parseInt(req.body.page as string, 10);
       const take = 5;
       const skip = (page - 1) * take;
+      const findPortfolioTemplate = {
+        skip,
+        take,
+        select: {
+          id: true,
+          name: true,
+          thumbnail: true,
+          orientation: true,
+          service: { select: { id: true, name: true } },
+        },
+      };
 
-      if (req.body.serviceId) {
-        const portfolios = await db.portfolio.findMany({
-          skip,
-          take,
-          where: { serviceId: parseInt(req.body.serviceId as string, 10) },
-          include: { service: true },
-        });
-        res.status(200).json({ portfolios });
-      } else {
-        const portfolios = await db.portfolio.findMany({
-          skip,
-          take,
-          include: { service: true },
-        });
-        res.status(200).json({ portfolios });
-      }
+      const portfolios = req.body.serviceId
+        ? await db.portfolio.findMany({
+            ...findPortfolioTemplate,
+            where: { serviceId: parseInt(req.body.serviceId as string, 10) },
+          })
+        : await db.portfolio.findMany(findPortfolioTemplate);
+
+      const mappedPortfolios = portfolios.map((portfolio) => {
+        return {
+          ...portfolio,
+          orientation: portfolio.orientation.toLowerCase(),
+        };
+      });
+
+      res.status(200).json({ portfolios: mappedPortfolios });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
