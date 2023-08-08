@@ -140,6 +140,36 @@ class ApiController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async teams(req: Request, res: Response) {
+    try {
+      const teams = await db.user.findMany({
+        where: {
+          NOT: {
+            role: {
+              name: 'Admin',
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          public_photo: true,
+          linkedin: true,
+          email: true,
+          role: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      res.status(200).json({ teams });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 }
 
 export default ApiController;
