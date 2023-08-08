@@ -102,6 +102,22 @@ class ApiController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async portfolios(req: Request, res: Response) {
+    try {
+      const services = await ServiceModel.getAllServices();
+      const portfolios = (await PortfolioModel.getAllPortfolios()).map((portfolio) => {
+        return {
+          ...portfolio,
+          orientation: portfolio.orientation.toLowerCase(),
+          serviceName: services.find((service) => service.id === portfolio.serviceId)?.name,
+        };
+      });
+      res.status(200).json({ portfolios });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 }
 
 export default ApiController;
