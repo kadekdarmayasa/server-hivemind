@@ -11,9 +11,7 @@ class PortfolioModel {
   };
 
   static async getAllPortfolios(): Promise<Portfolio[]> {
-    return db.portfolio.findMany({
-      select: { ...this._selectTemplate },
-    });
+    return db.portfolio.findMany({ select: { ...this._selectTemplate } });
   }
 
   static async getPortfolio(id: number): Promise<Portfolio | null> {

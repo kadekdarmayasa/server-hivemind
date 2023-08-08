@@ -4,4 +4,5 @@ export interface Portfolio {
   thumbnail: string;
   orientation: string;
   serviceId: number;
+  serviceName?: string;
 }

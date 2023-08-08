@@ -8,6 +8,7 @@ class BlogModel {
     title: true,
     slug: true,
     description: true,
+    published_at: true,
   };
 
   static async getAllBlogs(): Promise<Partial<Blog>[]> {
