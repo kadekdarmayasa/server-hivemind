@@ -55,6 +55,23 @@ class ApiController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async getBlogs(req: Request, res: Response) {
+    try {
+      const blogs = (await BlogModel.getAllBlogs())
+        .filter((blog) => blog.published)
+        .map((blog) => {
+          return {
+            ...blog,
+            published_at: dateFormat(new Date(blog.published_at!)),
+          };
+        });
+
+      res.status(200).json({ blogs });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 }
 
 export default ApiController;
