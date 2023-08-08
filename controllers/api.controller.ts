@@ -4,6 +4,7 @@ import ServiceModel from '../models/service.model';
 import path from 'path';
 import PortfolioModel from '../models/portfolio.model';
 import TestimonyModel from '../models/testimony.model';
+import FAQModel from '../models/faq.model';
 import BlogModel from '../models/blog.model';
 import UserModel from '../models/user.model';
 import dateFormat from '../lib/date.format';
@@ -90,6 +91,15 @@ class ApiController {
       }
     } catch (err: any) {
       res.status(500).json({ message: err.message });
+    }
+  }
+
+  static async faqs(req: Request, res: Response) {
+    try {
+      const faqs = await FAQModel.getAllFAQs();
+      res.status(200).json({ faqs });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   }
 }

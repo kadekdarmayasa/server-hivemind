@@ -7,3 +7,4 @@ apiRouter.get('/homepage', ApiController.homepage);
 apiRouter.get('/image/:name', ApiController.getImage);
 apiRouter.get('/blogs', ApiController.getBlogs);
 apiRouter.get('/blog/:id', ApiController.getBlog);
+apiRouter.get('/faqs', ApiController.faqs);
