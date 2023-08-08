@@ -72,6 +72,26 @@ class ApiController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async getBlog(req: Request, res: Response) {
+    try {
+      const id: number = parseInt(req.params.id as string, 10);
+      const blog = await BlogModel.getBlog(id);
+
+      if (!blog) {
+        res.status(404).json({ message: 'Blog not found' });
+      } else {
+        const mappedBlog = {
+          ...blog,
+          published_at: dateFormat(new Date(blog.published_at!)),
+          author: (await UserModel.getUser(blog.userId!))?.username,
+        };
+        res.status(200).json({ blog: mappedBlog });
+      }
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  }
 }
 
 export default ApiController;
