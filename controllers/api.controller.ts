@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import path from 'path';
-import UserModel from '../models/user.model';
 import dateFormat from '../lib/date.format';
 import { access, constants } from 'node:fs';
 import { db } from '../lib/server.db';
@@ -8,14 +7,8 @@ import { db } from '../lib/server.db';
 class ApiController {
   static async homepage(req: Request, res: Response) {
     try {
-      const [clients, users, services, portfolios, testimonies, blogs] = await Promise.all([
+      const [clients, services, portfolios, testimonies, blogs] = await Promise.all([
         db.client.findMany(),
-        db.user.findMany({
-          select: {
-            id: true,
-            username: true,
-          },
-        }),
         db.service.findMany({
           select: {
             id: true,
@@ -36,8 +29,8 @@ class ApiController {
         db.testimony.findMany({
           select: {
             id: true,
-            client_name: true,
-            client_photo: true,
+            clientName: true,
+            clientPhoto: true,
             occupation: true,
             message: true,
             rate: true,
@@ -50,9 +43,9 @@ class ApiController {
             title: true,
             slug: true,
             description: true,
-            published_at: true,
+            publishedAt: true,
             published: true,
-            userId: true,
+            user: { select: { username: true } },
           },
         }),
       ]);
@@ -61,8 +54,8 @@ class ApiController {
         .filter((blog) => blog.published)
         .map((blog) => ({
           ...blog,
-          published_at: dateFormat(new Date(blog.published_at!)),
-          author: users.find((user) => user.id === blog.userId)!.username,
+          published_at: dateFormat(new Date(blog.publishedAt!)),
+          author: blog.user.username,
         }));
 
       res.status(200).json({
@@ -96,13 +89,6 @@ class ApiController {
 
   static async getBlogs(req: Request, res: Response) {
     try {
-      const users = await db.user.findMany({
-        select: {
-          id: true,
-          username: true,
-        },
-      });
-
       const blogs = await db.blog.findMany({
         select: {
           id: true,
@@ -110,9 +96,9 @@ class ApiController {
           title: true,
           slug: true,
           description: true,
-          published_at: true,
+          publishedAt: true,
           published: true,
-          userId: true,
+          user: { select: { username: true } },
         },
       });
 
@@ -120,8 +106,8 @@ class ApiController {
         .filter((blog) => blog.published)
         .map((blog) => ({
           ...blog,
-          published_at: dateFormat(new Date(blog.published_at!)),
-          author: users.find((user) => user.id === blog.userId)!.username,
+          publishedAt: dateFormat(new Date(blog.publishedAt!)),
+          author: blog.user.username,
         }));
 
       res.status(200).json({ blogs: mappedBlogs });
@@ -141,11 +127,11 @@ class ApiController {
           title: true,
           slug: true,
           description: true,
-          published_at: true,
+          publishedAt: true,
           content: true,
-          cover_image: true,
+          coverImage: true,
           published: true,
-          userId: true,
+          user: { select: { username: true } },
         },
       });
 
@@ -153,8 +139,8 @@ class ApiController {
       res.status(200).json({
         blog: {
           ...blog,
-          published_at: dateFormat(new Date(blog.published_at!)),
-          author: (await UserModel.getUser(blog.userId!))?.username,
+          publishedAt: dateFormat(new Date(blog.publishedAt!)),
+          author: blog.user.username,
         },
       });
     } catch (err: any) {
@@ -224,7 +210,7 @@ class ApiController {
         select: {
           id: true,
           name: true,
-          public_photo: true,
+          publicPhoto: true,
           linkedin: true,
           email: true,
           role: {

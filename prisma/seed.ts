@@ -1,121 +1,86 @@
 import { db } from '../lib/server.db';
 import bcrypt from 'bcryptjs';
-import { User } from '../types/user';
-import { Role } from '../types/role';
-import { Client } from '../types/client';
-import { Testimony } from '../types/testimony';
-import { Service } from '../types/service';
-import { FAQ } from '../types/faq';
-import { Subscriber } from '../types/subscriber';
 
-async function seed() {
-  const users = await getUsers();
-  const roles = await getRoles();
-  const services = await getServices();
-  const clients = await getClients();
-  const testimonies = await getTestimonies();
-  const faqs = await getFAQs();
-  const subscribers = await getSubscribers();
-
-  await db.role.createMany({ data: roles });
-  await db.client.createMany({ data: clients });
-  await db.service.createMany({ data: services });
-  await db.testimony.createMany({ data: testimonies });
-  await db.fAQ.createMany({ data: faqs });
-  await db.subscriber.createMany({ data: subscribers });
-
-  const rolesInDb = await db.role.findMany();
-  for (let i = 0; i < users.length; i++) users[i].roleId = rolesInDb[i].id;
-
-  for (const user of users) {
-    const salt = bcrypt.genSaltSync(8);
-    const password = bcrypt.hashSync(user.password, salt);
-    await db.user.create({ data: { ...user, password } });
-  }
+interface User {
+  name: string;
+  username: string;
+  password: string;
+  roleId: number;
+  photo: string;
+  publicPhoto: string;
+  email: string;
+  linkedin: string;
 }
 
-seed()
-  .then(async () => {
-    await db.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await db.$disconnect();
-    process.exit(1);
-  });
+interface Role {
+  name: string;
+}
 
-async function getUsers(): Promise<Omit<User, 'id'>[]> {
+interface Client {
+  logo: string;
+  name: string;
+}
+
+interface Service {
+  name: string;
+  description: string;
+  thumbnail: string;
+}
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+interface Subscriber {
+  email: string;
+}
+
+interface Testimony {
+  clientName: string;
+  clientPhoto: string;
+  occupation: string;
+  message: string;
+  rate: number;
+}
+
+async function getUser(): Promise<User> {
+  return {
+    name: 'I Kadek Darmayasa Adi Putra',
+    username: 'darmayasa',
+    password: 'darma123',
+    roleId: 1,
+    photo: 'default-profile.png',
+    publicPhoto: 'teamPhoto-1691714645467.png',
+    linkedin: 'kadekdarmayasa',
+    email: 'darmayasadiputra@gmail.com',
+  };
+}
+
+async function getRoles(): Promise<Role[]> {
   return [
-    {
-      name: 'I Kadek Darmayasa Adi Putra',
-      username: 'darmayasa',
-      password: 'darma123',
-      roleId: 1,
-      photo: 'default-profile.png',
-      linkedin: 'kadekdarmayasa',
-      email: 'darmayasadiputra@gmail.com',
-    },
+    { name: 'Admin' },
+    { name: 'Digital Marketing Manager' },
+    { name: 'Web Developer Expert' },
+    { name: 'Lead Developer' },
+    { name: 'Sales Manager' },
   ];
 }
 
-async function getRoles(): Promise<Omit<Role, 'id'>[]> {
+async function getClients(): Promise<Client[]> {
   return [
-    {
-      name: 'Admin',
-    },
-    {
-      name: 'Digital Marketing Manager',
-    },
-    {
-      name: 'Web Developer Expert',
-    },
-    {
-      name: 'Lead Developer',
-    },
-    {
-      name: 'Sales Manager',
-    },
+    { name: 'Amazon', logo: 'clientLogo-1689645227289.png' },
+    { name: 'Apple', logo: 'clientLogo-1689645237712.png' },
+    { name: 'Behance', logo: 'clientLogo-1689645248549.png' },
+    { name: 'Dribbble', logo: 'clientLogo-1689645261165.png' },
+    { name: 'Dropbox', logo: 'clientLogo-1689645274965.png' },
+    { name: 'Google', logo: 'clientLogo-1689645287644.png' },
+    { name: 'Paypal', logo: 'clientLogo-1689645297158.png' },
+    { name: 'Slack', logo: 'clientLogo-1689645305707.png' },
   ];
 }
 
-async function getClients(): Promise<Omit<Client, 'id'>[]> {
-  return [
-    {
-      name: 'Amazon',
-      logo: 'clientLogo-1689645227289.png',
-    },
-    {
-      name: 'Apple',
-      logo: 'clientLogo-1689645237712.png',
-    },
-    {
-      name: 'Behance',
-      logo: 'clientLogo-1689645248549.png',
-    },
-    {
-      name: 'Dribbble',
-      logo: 'clientLogo-1689645261165.png',
-    },
-    {
-      name: 'Dropbox',
-      logo: 'clientLogo-1689645274965.png',
-    },
-    {
-      name: 'Google',
-      logo: 'clientLogo-1689645287644.png',
-    },
-    {
-      name: 'Paypal',
-      logo: 'clientLogo-1689645297158.png',
-    },
-    {
-      name: 'Slack',
-      logo: 'clientLogo-1689645305707.png',
-    },
-  ];
-}
-
-async function getTestimonies(): Promise<Omit<Testimony, 'id'>[]> {
+async function getTestimonies(): Promise<Testimony[]> {
   return [
     {
       clientName: 'Max Robinson',
@@ -168,7 +133,7 @@ async function getTestimonies(): Promise<Omit<Testimony, 'id'>[]> {
   ];
 }
 
-async function getServices(): Promise<Omit<Service, 'id'>[]> {
+async function getServices(): Promise<Service[]> {
   return [
     {
       name: 'Web Design',
@@ -209,7 +174,7 @@ async function getServices(): Promise<Omit<Service, 'id'>[]> {
   ];
 }
 
-async function getFAQs(): Promise<Omit<FAQ, 'id'>[]> {
+async function getFAQs(): Promise<FAQ[]> {
   return [
     {
       question: 'What services does your company offer?',
@@ -241,14 +206,49 @@ async function getFAQs(): Promise<Omit<FAQ, 'id'>[]> {
 
 async function getSubscribers(): Promise<Omit<Subscriber, 'id'>[]> {
   return [
-    {
-      email: 'darmayasadiputra@gmail.com',
-    },
-    {
-      email: 'nengahsuastini988@gmail.com',
-    },
-    {
-      email: 'nyomandyasa@gmail.com',
-    },
+    { email: 'darmayasadiputra@gmail.com' },
+    { email: 'adiputrakadekdarmayasa@gmai.com' },
+    { email: 'johndoe@gmail.com' },
   ];
 }
+
+async function seed() {
+  const [user, roles, services, clients, testimonies, faqs, subscribers] = await Promise.all([
+    getUser(),
+    getRoles(),
+    getServices(),
+    getClients(),
+    getTestimonies(),
+    getFAQs(),
+    getSubscribers(),
+  ]);
+
+  await Promise.all([
+    db.role.createMany({ data: roles }),
+    db.client.createMany({ data: clients }),
+    db.service.createMany({ data: services }),
+    db.testimony.createMany({ data: testimonies }),
+    db.faq.createMany({ data: faqs }),
+    db.subscriber.createMany({ data: subscribers }),
+  ]);
+
+  const rolesInDb = await db.role.findMany();
+  user.roleId = rolesInDb[0].id;
+
+  await db.user.create({
+    data: {
+      ...user,
+      password: bcrypt.hashSync(user.password, bcrypt.genSaltSync(8)),
+    },
+  });
+}
+
+seed()
+  .then(async () => {
+    await db.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await db.$disconnect();
+    process.exit(1);
+  });

@@ -257,7 +257,7 @@ class UserController {
       });
 
       if (req.file) {
-        const oldPublicPhoto = `public/images/${team!.public_photo}`;
+        const oldPublicPhoto = `public/images/${team!.publicPhoto}`;
         access(oldPublicPhoto, constants.F_OK, (err) => {
           if (!err) unlink(oldPublicPhoto);
         });
@@ -271,7 +271,7 @@ class UserController {
           email: req.body.email,
           linkedin: req.body.linkedin,
           roleId: parseInt(req.body.roleId as string, 10),
-          public_photo: req.file?.filename ?? team!.public_photo,
+          publicPhoto: req.file?.filename ?? team!.publicPhoto,
         },
       });
 
@@ -297,7 +297,7 @@ class UserController {
           email: req.body.email,
           linkedin: req.body.linkedin,
           photo: 'default-profile.png',
-          public_photo: req.file!.filename,
+          publicPhoto: req.file!.filename,
           roleId: parseInt(req.body.roleId as string, 10),
         },
       });
@@ -319,13 +319,13 @@ class UserController {
         where: { id },
         select: {
           photo: true,
-          public_photo: true,
+          publicPhoto: true,
         },
       });
 
       await Promise.all([
         unlink(`public/images/${team!.photo}`),
-        unlink(`public/images/${team!.public_photo}`),
+        unlink(`public/images/${team!.publicPhoto}`),
         db.user.delete({ where: { id } }),
       ]);
 
@@ -373,9 +373,9 @@ class UserController {
           description: req.body.description,
           content: req.body.content,
           thumbnail: files['blogThumbnail'][0].filename,
-          cover_image: files['coverImage'][0].filename,
+          coverImage: files['coverImage'][0].filename,
           published: false,
-          published_at: new Date(),
+          publishedAt: new Date(),
           userId: req.session.user!.id,
         },
       });
@@ -431,7 +431,7 @@ class UserController {
 
       if (!isFilesEmpty(files)) {
         const oldThumbnail = `public/images/${blog!.thumbnail}`;
-        const oldCoverImage = `public/images/${blog!.cover_image}`;
+        const oldCoverImage = `public/images/${blog!.coverImage}`;
 
         access(oldThumbnail, constants.F_OK, (err) => {
           if (!err) unlink(oldThumbnail);
@@ -450,9 +450,9 @@ class UserController {
           description: req.body.description,
           content: req.body.content,
           thumbnail: blogThumbnail[0]?.filename ?? blog!.thumbnail,
-          cover_image: coverImage[0]?.filename ?? blog!.cover_image,
+          coverImage: coverImage[0]?.filename ?? blog!.coverImage,
           published: blog!.published,
-          published_at: blog!.published ? blog!.published_at : new Date(),
+          publishedAt: blog!.published ? blog!.publishedAt : new Date(),
           userId: blog!.userId,
         },
       });
@@ -476,7 +476,7 @@ class UserController {
 
       await Promise.all([
         unlink(`public/images/${blog!.thumbnail}`),
-        unlink(`public/images/${blog!.cover_image}`),
+        unlink(`public/images/${blog!.coverImage}`),
         db.blog.delete({
           where: { id },
         }),
@@ -494,7 +494,7 @@ class UserController {
 
   static async publishBlog(req: Request, res: Response) {
     try {
-      const id = parseInt(req.body.id as string, 10);
+      const id: number = parseInt(req.body.id as string, 10);
       const blog = await db.blog.findFirst({
         where: { id },
       });
@@ -507,9 +507,9 @@ class UserController {
           description: blog!.description,
           content: blog!.content,
           thumbnail: blog!.thumbnail,
-          cover_image: blog!.cover_image,
+          coverImage: blog!.coverImage,
           published: true,
-          published_at: new Date(),
+          publishedAt: new Date(),
           userId: blog!.userId,
         },
       });
@@ -763,8 +763,8 @@ class UserController {
     try {
       await db.testimony.create({
         data: {
-          client_name: req.body.clientName,
-          client_photo: req.file!.filename,
+          clientName: req.body.clientName,
+          clientPhoto: req.file!.filename,
           occupation: req.body.occupation,
           message: req.body.message,
           rate: parseFloat(req.body.rate as string),
@@ -786,11 +786,11 @@ class UserController {
       const id: number = parseInt(req.body.id as string, 10);
       const testimony = await db.testimony.findFirst({
         where: { id },
-        select: { client_photo: true },
+        select: { clientPhoto: true },
       });
 
       if (req.file) {
-        const oldClientPhoto = `public/images/${testimony!.client_photo}`;
+        const oldClientPhoto = `public/images/${testimony!.clientPhoto}`;
         access(oldClientPhoto, constants.F_OK, (err) => {
           if (!err) unlink(oldClientPhoto);
         });
@@ -799,8 +799,8 @@ class UserController {
       await db.testimony.update({
         where: { id },
         data: {
-          client_name: req.body.clientName,
-          client_photo: req.file?.filename ?? testimony!.client_photo,
+          clientName: req.body.clientName,
+          clientPhoto: req.file?.filename ?? testimony!.clientPhoto,
           occupation: req.body.occupation,
           message: req.body.message,
           rate: parseFloat(req.body.rate as string),
@@ -824,7 +824,7 @@ class UserController {
       const testimony = await db.testimony.findFirst({ where: { id } });
 
       await Promise.all([
-        unlink(`public/images/${testimony!.client_photo}`),
+        unlink(`public/images/${testimony!.clientPhoto}`),
         db.testimony.delete({ where: { id } }),
       ]);
 

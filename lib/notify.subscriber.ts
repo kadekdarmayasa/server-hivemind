@@ -1,8 +1,16 @@
 import express from 'express';
-import { Subscriber } from '../types/subscriber';
-import { Blog } from '../types/blog';
 import { transporter } from './nodemailer.transport';
 import { createEmailTemplate } from '../src/templates/template-creator';
+
+interface Subscriber {
+  email: string;
+}
+
+interface Blog {
+  title: string;
+  description: string;
+  thumbnail: string;
+}
 
 async function notifySubcribers(subscribers: Array<Subscriber>, blog: Blog): Promise<void> {
   try {

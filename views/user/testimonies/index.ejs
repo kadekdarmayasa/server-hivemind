@@ -42,12 +42,12 @@
                       <td><%= testimony.id %></td>
                       <td>
                         <img
-                          src="/public/images/<%= testimony.client_photo  %>"
-                          alt="<%= testimony.client_photo %>"
+                          src="/public/images/<%= testimony.clientPhoto  %>"
+                          alt="<%= testimony.clientPhoto %>"
                           style="width: 50px"
                         />
                       </td>
-                      <td><%= testimony.client_name %></td>
+                      <td><%= testimony.clientName %></td>
                       <td><%= testimony.occupation %></td>
                       <td><%= testimony.message %></td>
                       <td><%= testimony.rate %></td>
@@ -65,8 +65,8 @@
                             data-toggle="modal"
                             data-target="#updateTestimony"
                             data-testimony-id="<%= testimony.id %>"
-                            data-client-name="<%= testimony.client_name %>"
-                            data-client-photo="<%= testimony.client_photo %>"
+                            data-client-name="<%= testimony.clientName %>"
+                            data-client-photo="<%= testimony.clientPhoto %>"
                             data-occupation="<%= testimony.occupation %>"
                             data-message="<%= testimony.message %>"
                             data-rate="<%= testimony.rate %>"

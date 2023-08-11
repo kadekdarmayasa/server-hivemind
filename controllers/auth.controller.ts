@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import UserModel from '../models/user.model';
 import bcrypt from 'bcryptjs';
 import '../types/express.session';
+import { db } from '../lib/server.db';
 
 class AuthController {
   static async viewSignin(req: Request, res: Response) {
@@ -20,7 +20,9 @@ class AuthController {
 
   static async actionSignin(req: Request, res: Response) {
     const { username, password } = req.body;
-    const user = await UserModel.getUserByUsername(username);
+    const user = await db.user.findFirst({
+      where: { username },
+    });
 
     if (!user) {
       req.flash('alertType', 'danger');
