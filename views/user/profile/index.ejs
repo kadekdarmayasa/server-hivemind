@@ -41,7 +41,6 @@
             </div>
 
             <form action="/user/profile?_method=PUT" method="post">
-              <input type="hidden" id="id-update-profile" name="id" value="<%= user.id %>" />
               <div class="form-group" style="margin-top: -10px">
                 <label for="name">Name</label>
                 <input
@@ -120,7 +119,6 @@
               method="post"
               id="update-password-form"
             >
-              <input type="hidden" id="id-update-password" name="id" value="<%= user.id %>" />
               <div class="form-group mt-4">
                 <label for="current-password">Current Password</label>
                 <input
@@ -220,10 +218,7 @@
 
       canvas.toBlob(function (blob) {
         const file = new File([blob], 'profile.png', { type: 'image/png' });
-
-        const formData = new FormData();
-        formData.append('id', $('#id-update-profile').val());
-        formData.append('photo', file);
+        const formData = new FormData().append('photo', file);
 
         $.ajax('/user/update-photo?_method=PUT', {
           method: 'POST',

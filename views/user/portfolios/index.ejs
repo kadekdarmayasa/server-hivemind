@@ -9,7 +9,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">Portfolios</h1>
 
-          <% if(user.roleName === 'Admin') { %>
+          <% if(user.role.name === 'Admin') { %>
           <button
             type="button"
             class="btn btn-primary"
@@ -34,7 +34,7 @@
                       <th>Thumbnail</th>
                       <th>Portfolio Name</th>
                       <th>Orientation</th>
-                      <% if(user.roleName === 'Admin') { %>
+                      <% if(user.role.name === 'Admin') { %>
                       <th>Actions</th>
                       <% } %>
                     </tr>
@@ -52,7 +52,7 @@
                       </td>
                       <td><%= portfolio.name %></td>
                       <td><%= portfolio.orientation %></td>
-                      <% if(user.roleName === 'Admin') { %>
+                      <% if(user.role.name === 'Admin') { %>
                       <td>
                         <form
                           action="/user/portfolios/<%= portfolio.id %>?_method=DELETE"

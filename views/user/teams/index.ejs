@@ -9,7 +9,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">Teams</h1>
 
-          <% if(user.roleName === 'Admin') { %>
+          <% if(user.role.name === 'Admin') { %>
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTeam">
             Add Team
           </button>
@@ -32,7 +32,7 @@
                       <th>Role</th>
                       <th>Email</th>
                       <th>Linkedin</th>
-                      <% if(user.roleName === 'Admin') { %>
+                      <% if(user.role.name === 'Admin') { %>
                       <th>Actions</th>
                       <% } %>
                     </tr>
@@ -57,7 +57,7 @@
                       <td><%= team.roleName %></td>
                       <td><%= team.email %></td>
                       <td><%= team.linkedin %></td>
-                      <% if(user.roleName === 'Admin') { %>
+                      <% if(user.role.name === 'Admin') { %>
                       <td>
                         <form action="/user/teams/<%= team.id %>?_method=DELETE" method="post">
                           <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">

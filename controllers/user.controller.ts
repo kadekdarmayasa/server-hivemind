@@ -1,20 +1,12 @@
 import { Request, Response } from 'express';
-import UserModel from '../models/user.model';
-import SubscriberModel from '../models/subscriber.model';
-import FAQModel from '../models/faq.model';
-import ClientModel from '../models/client.model';
-import TestimonyModel from '../models/testimony.model';
-import ServiceModel from '../models/service.model';
-import PortfolioModel from '../models/portfolio.model';
-import RoleModel from '../models/role.model';
-import BlogModel from '../models/blog.model';
-import { User } from '../types/user';
 import { unlink } from 'node:fs/promises';
 import { access, constants } from 'node:fs';
 import '../types/express.session';
 import bcrypt from 'bcryptjs';
 import { isFilesEmpty } from '../lib/multer.files';
 import { notifySubcribers } from '../lib/notify.subscriber';
+import { db } from '../lib/server.db';
+import { CustomFiles } from '../types/custom.files';
 
 class UserController {
   static async index(req: Request, res: Response) {
@@ -22,40 +14,49 @@ class UserController {
   }
 
   static async dashboard(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const totalTeams = (await UserModel.getUsers()).length;
-    const totalServices = (await ServiceModel.getAllServices()).length;
-    const totalPortfolios = (await PortfolioModel.getAllPortfolios()).length;
-    const totalClients = (await ClientModel.getAllClients()).length;
+    const userId: number = req.session.user!.id;
+    const [user, users, services, portfolios, clients] = await Promise.all([
+      db.user.findFirst({
+        where: { id: userId },
+      }),
+      db.user.findMany(),
+      db.service.findMany(),
+      db.portfolio.findMany(),
+      db.client.findMany(),
+    ]);
 
     res.render(`user/dashboard`, {
       title: 'Hivemind | Dashboard',
       view: 'dashboard',
       user,
-      totalTeams,
-      totalServices,
-      totalPortfolios,
-      totalClients,
+      totalTeams: users.length,
+      totalServices: services.length,
+      totalPortfolios: portfolios.length,
+      totalClients: clients.length,
     });
   }
 
   static async profile(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const role = await RoleModel.getRole(user!.roleId);
-    const roles = await RoleModel.getAllRoles();
-
-    const mappedUser = {
-      ...user,
-      email: user!.email || 'N/A',
-      linkedin: user!.linkedin || 'N/A',
-      role: role!.name,
-    };
+    const [user, role, roles] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+      }),
+      db.role.findFirst({
+        where: { id: req.session.user!.roleId },
+      }),
+      db.role.findMany(),
+    ]);
 
     res.render('user/profile', {
       title: 'Hivemind | User Profile',
       view: 'profile',
-      user: { ...mappedUser },
       roles,
+      user: {
+        ...user,
+        email: user!.email || 'N/A',
+        linkedin: user!.linkedin || 'N/A',
+        role: role!.name,
+      },
       alert: {
         message: req.flash('alertMessage'),
         type: req.flash('alertType'),
@@ -65,13 +66,17 @@ class UserController {
 
   static async updateProfile(req: Request, res: Response) {
     try {
-      await UserModel.updateUser({
-        id: parseInt(req.body.id as string, 10),
-        name: req.body.name,
-        username: req.body.username,
-        email: req.body.email,
-        roleId: parseInt(req.body.roleId as string, 10),
-        linkedin: req.body.linkedin,
+      await db.user.update({
+        where: {
+          id: req.session.user!.id,
+        },
+        data: {
+          name: req.body.name,
+          username: req.body.username,
+          email: req.body.email,
+          linkedin: req.body.linkedin,
+          roleId: parseInt(req.body.roleId as string, 10),
+        },
       });
 
       req.flash('alertMessage', 'Profile updated successfully');
@@ -86,17 +91,23 @@ class UserController {
 
   static async updatePassword(req: Request, res: Response) {
     try {
-      const userId: number = parseInt(req.body.id as string, 10);
-      const user = await UserModel.getUser(userId);
-      const currentPassword = req.body.currentPassword;
-      const newPassword = req.body.newPassword;
+      const userId: number = req.session.user!.id;
+      const user = await db.user.findFirst({
+        where: { id: userId },
+        select: { password: true },
+      });
 
-      if (!bcrypt.compareSync(currentPassword, user!.password)) {
+      if (!bcrypt.compareSync(req.body.currentPassword, user!.password)) {
         return res.status(400).json({ message: 'Current password is incorrect' });
       }
 
       const salt = await bcrypt.genSalt(8);
-      await UserModel.updatePassword(userId, bcrypt.hashSync(newPassword, salt));
+      await db.user.update({
+        where: { id: userId },
+        data: {
+          password: bcrypt.hashSync(req.body.newPassword, salt),
+        },
+      });
       return res.status(200).json({ message: 'Password updated successfully' });
     } catch (error: any) {
       req.flash('alertMessage', error.message);
@@ -107,8 +118,11 @@ class UserController {
 
   static async updatePhotoProfile(req: Request, res: Response) {
     try {
-      const userId = parseInt(req.body.id as string, 10);
-      const user = await UserModel.getUser(userId);
+      const userId: number = req.session.user!.id;
+      const user = await db.user.findFirst({
+        where: { id: userId },
+        select: { photo: true },
+      });
 
       if (req.file && user!.photo !== 'default-profile.png') {
         const oldPhoto = `public/images/${user!.photo}`;
@@ -117,7 +131,12 @@ class UserController {
         });
       }
 
-      await UserModel.updatePhotoProfile(userId, req.file!.filename);
+      await db.user.update({
+        where: { id: userId },
+        data: {
+          photo: req.file?.filename ?? user!.photo,
+        },
+      });
       return res.status(200).json({ message: 'Photo profile updated successfully' });
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
@@ -125,12 +144,20 @@ class UserController {
   }
 
   static async roles(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [roles, user] = await Promise.all([
+      db.role.findMany(),
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: {
+          role: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     res.render('user/roles', {
       title: 'Hivemind | Roles',
@@ -146,7 +173,10 @@ class UserController {
 
   static async addRole(req: Request, res: Response) {
     try {
-      await RoleModel.addRole(req.body.roleName);
+      const name: string = req.body.roleName;
+      await db.role.create({
+        data: { name },
+      });
 
       req.flash('alertMessage', 'Role added successfully');
       req.flash('alertType', 'success');
@@ -160,7 +190,12 @@ class UserController {
 
   static async updateRole(req: Request, res: Response) {
     try {
-      await RoleModel.updateRole(parseInt(req.body.roleId as string, 10), req.body.roleName);
+      const id: number = parseInt(req.body.roleId as string, 10);
+      const name: string = req.body.roleName;
+      await db.role.update({
+        where: { id },
+        data: { name },
+      });
 
       req.flash('alertMessage', 'Role updated successfully');
       req.flash('alertType', 'success');
@@ -174,7 +209,10 @@ class UserController {
 
   static async deleteRole(req: Request, res: Response) {
     try {
-      await RoleModel.deleteRole(parseInt(req.params.id as string, 10));
+      const id: number = parseInt(req.params.id as string, 10);
+      await db.role.delete({
+        where: { id },
+      });
 
       req.flash('alertMessage', 'Role deleted successfully');
       req.flash('alertType', 'success');
@@ -187,23 +225,22 @@ class UserController {
   }
 
   static async teams(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const teams = await UserModel.getUsers();
-    const roles = await RoleModel.getAllRoles();
-
-    type UserWithRole = User & { roleName: string };
-    const mappedTeams = [] as UserWithRole[];
-    teams.forEach((team) => {
-      const roleName = roles.find((role) => role.id === team.roleId)!.name;
-      if (user!.roleId === team.roleId) user!.roleName = roleName;
-      if (roleName !== 'Admin') mappedTeams.push({ ...team, roleName });
-    });
+    const [user, teams, roles] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: { role: true },
+      }),
+      db.user.findMany({
+        include: { role: true },
+      }),
+      db.role.findMany(),
+    ]);
 
     res.render('user/teams', {
       title: 'Hivemind | Teams',
       view: 'teams',
       user,
-      teams: mappedTeams,
+      teams,
       roles,
       alert: {
         message: req.flash('alertMessage'),
@@ -215,7 +252,9 @@ class UserController {
   static async updateTeam(req: Request, res: Response) {
     try {
       const id: number = parseInt(req.body.id as string, 10);
-      const team = await UserModel.getUser(id);
+      const team = await db.user.findFirst({
+        where: { id },
+      });
 
       if (req.file) {
         const oldPublicPhoto = `public/images/${team!.public_photo}`;
@@ -224,14 +263,16 @@ class UserController {
         });
       }
 
-      await UserModel.updateUser({
-        id,
-        name: req.body.name,
-        username: req.body.username,
-        email: req.body.email,
-        roleId: parseInt(req.body.roleId as string, 10),
-        linkedin: req.body.linkedin,
-        public_photo: req.file ? req.file.filename : team!.public_photo,
+      await db.user.update({
+        where: { id },
+        data: {
+          name: req.body.name,
+          username: req.body.username,
+          email: req.body.email,
+          linkedin: req.body.linkedin,
+          roleId: parseInt(req.body.roleId as string, 10),
+          public_photo: req.file?.filename ?? team!.public_photo,
+        },
       });
 
       req.flash('alertType', 'success');
@@ -246,18 +287,19 @@ class UserController {
 
   static async addTeam(req: Request, res: Response) {
     try {
-      const salt = bcrypt.genSaltSync(8);
-      const password = bcrypt.hashSync(req.body.password, salt);
+      const salt: string = bcrypt.genSaltSync(8);
 
-      await UserModel.addUser({
-        name: req.body.name,
-        username: req.body.username,
-        password,
-        email: req.body.email,
-        linkedin: req.body.linkedin,
-        photo: 'default-profile.png',
-        public_photo: req.file!.filename,
-        roleId: parseInt(req.body.roleId as string, 10),
+      await db.user.create({
+        data: {
+          name: req.body.name,
+          username: req.body.username,
+          password: bcrypt.hashSync(req.body.password, salt),
+          email: req.body.email,
+          linkedin: req.body.linkedin,
+          photo: 'default-profile.png',
+          public_photo: req.file!.filename,
+          roleId: parseInt(req.body.roleId as string, 10),
+        },
       });
 
       req.flash('alertType', 'success');
@@ -272,12 +314,20 @@ class UserController {
 
   static async deleteTeam(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id as string, 10);
-      const team = await UserModel.getUser(id);
+      const id: number = parseInt(req.params.id as string, 10);
+      const team = await db.user.findFirst({
+        where: { id },
+        select: {
+          photo: true,
+          public_photo: true,
+        },
+      });
 
-      await unlink(`public/images/${team!.photo}`);
-      await unlink(`public/images/${team!.public_photo}`);
-      await UserModel.deleteUser(id);
+      await Promise.all([
+        unlink(`public/images/${team!.photo}`),
+        unlink(`public/images/${team!.public_photo}`),
+        db.user.delete({ where: { id } }),
+      ]);
 
       req.flash('alertType', 'success');
       req.flash('alertMessage', 'Team was successfully deleted');
@@ -290,14 +340,14 @@ class UserController {
   }
 
   static async blogs(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const services = await ServiceModel.getAllServices();
-    const blogs = await BlogModel.getAllBlogs();
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, services, blogs] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: { role: true },
+      }),
+      db.service.findMany(),
+      db.blog.findMany(),
+    ]);
 
     res.render('user/blogs', {
       title: 'Hivemind | Blogs',
@@ -314,23 +364,20 @@ class UserController {
 
   static async addBlog(req: Request, res: Response) {
     try {
-      const thumbnail = (req.files as { [fieldname: string]: Express.Multer.File[] })[
-        'blogThumbnail'
-      ];
-      const coverImage = (req.files as { [fieldname: string]: Express.Multer.File[] })[
-        'coverImage'
-      ];
+      const files = req.files as CustomFiles;
 
-      await BlogModel.addBlog({
-        title: req.body.title,
-        slug: req.body.slug + '-' + Date.now(),
-        description: req.body.description,
-        content: req.body.content,
-        thumbnail: thumbnail[0].filename,
-        cover_image: coverImage[0].filename,
-        published: false,
-        published_at: new Date(),
-        userId: req.session.user!.id,
+      await db.blog.create({
+        data: {
+          title: req.body.title,
+          slug: req.body.slug + '-' + Date.now(),
+          description: req.body.description,
+          content: req.body.content,
+          thumbnail: files['blogThumbnail'][0].filename,
+          cover_image: files['coverImage'][0].filename,
+          published: false,
+          published_at: new Date(),
+          userId: req.session.user!.id,
+        },
       });
 
       req.flash('alertMessage', 'Blog added successfully');
@@ -345,10 +392,16 @@ class UserController {
 
   static async updateBlogView(req: Request, res: Response) {
     try {
-      const user = await UserModel.getUser(req.session.user!.id);
-      const services = await ServiceModel.getAllServices();
-      const id = parseInt(req.params.id as string, 10);
-      const blog = await BlogModel.getBlog(id);
+      const id: number = parseInt(req.params.id as string, 10);
+      const [user, services, blog] = await Promise.all([
+        db.user.findFirst({
+          where: { id: req.session.user!.id },
+        }),
+        db.service.findMany(),
+        db.blog.findFirst({
+          where: { id },
+        }),
+      ]);
 
       res.render('user/blogs', {
         title: 'Hivemind | Blogs',
@@ -370,13 +423,13 @@ class UserController {
 
   static async updateBlog(req: Request, res: Response) {
     try {
+      const files = req.files as CustomFiles;
+      const blogThumbnail = files['blogThumbnail'];
+      const coverImage = files['coverImage'];
       const id: number = parseInt(req.params.id as string, 10);
-      const blog = await BlogModel.getBlog(id);
-      const reqFiles = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const thumbnail = reqFiles['blogThumbnail'][0];
-      const coverImage = reqFiles['coverImage'][0];
+      const blog = await db.blog.findFirst({ where: { id } });
 
-      if (!isFilesEmpty(req.files)) {
+      if (!isFilesEmpty(files)) {
         const oldThumbnail = `public/images/${blog!.thumbnail}`;
         const oldCoverImage = `public/images/${blog!.cover_image}`;
 
@@ -389,17 +442,19 @@ class UserController {
         });
       }
 
-      await BlogModel.updateBlog({
-        id,
-        title: req.body.title,
-        slug: req.body.slug,
-        description: req.body.description,
-        content: req.body.content,
-        thumbnail: isFilesEmpty(req.files) ? blog!.thumbnail : thumbnail.filename,
-        cover_image: isFilesEmpty(req.files) ? blog!.cover_image : coverImage.filename,
-        published: blog!.published,
-        published_at: blog!.published ? blog!.published_at : new Date(),
-        userId: blog!.userId,
+      await db.blog.update({
+        where: { id },
+        data: {
+          title: req.body.title,
+          slug: req.body.slug,
+          description: req.body.description,
+          content: req.body.content,
+          thumbnail: blogThumbnail[0]?.filename ?? blog!.thumbnail,
+          cover_image: coverImage[0]?.filename ?? blog!.cover_image,
+          published: blog!.published,
+          published_at: blog!.published ? blog!.published_at : new Date(),
+          userId: blog!.userId,
+        },
       });
 
       req.flash('alertMessage', 'Blog updated successfully');
@@ -409,17 +464,23 @@ class UserController {
       req.flash('alertType', 'danger');
     }
 
-    res.redirect(`/user/blogs`);
+    res.redirect(`/user/blogs/update/${req.params.id}`);
   }
 
   static async deleteBlog(req: Request, res: Response) {
     try {
       const id: number = parseInt(req.params.id as string);
-      const blog = await BlogModel.getBlog(id);
+      const blog = await db.blog.findFirst({
+        where: { id },
+      });
 
-      await unlink(`public/images/${blog!.thumbnail}`);
-      await unlink(`public/images/${blog!.cover_image}`);
-      await BlogModel.deleteBlog(id);
+      await Promise.all([
+        unlink(`public/images/${blog!.thumbnail}`),
+        unlink(`public/images/${blog!.cover_image}`),
+        db.blog.delete({
+          where: { id },
+        }),
+      ]);
 
       req.flash('alertMessage', 'Blog deleted successfully');
       req.flash('alertType', 'success');
@@ -434,22 +495,26 @@ class UserController {
   static async publishBlog(req: Request, res: Response) {
     try {
       const id = parseInt(req.body.id as string, 10);
-      const blog = await BlogModel.getBlog(id);
-
-      await BlogModel.updateBlog({
-        id,
-        title: blog!.title,
-        slug: blog!.slug,
-        description: blog!.description,
-        content: blog!.content,
-        thumbnail: blog!.thumbnail,
-        cover_image: blog!.cover_image,
-        published: true,
-        published_at: new Date(),
-        userId: blog!.userId,
+      const blog = await db.blog.findFirst({
+        where: { id },
       });
 
-      const subscribers = await SubscriberModel.getAllSubscribers();
+      await db.blog.update({
+        where: { id },
+        data: {
+          title: blog!.title,
+          slug: blog!.slug,
+          description: blog!.description,
+          content: blog!.content,
+          thumbnail: blog!.thumbnail,
+          cover_image: blog!.cover_image,
+          published: true,
+          published_at: new Date(),
+          userId: blog!.userId,
+        },
+      });
+
+      const subscribers = await db.subscriber.findMany();
       notifySubcribers(subscribers, blog!);
 
       req.flash('alertMessage', 'Blog published successfully');
@@ -463,13 +528,12 @@ class UserController {
   }
 
   static async subscribers(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const subscribers = await SubscriberModel.getAllSubscribers();
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, subscribers] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+      }),
+      db.subscriber.findMany(),
+    ]);
 
     res.render('user/subscribers', {
       title: 'Hivemind | Subscribers',
@@ -485,10 +549,11 @@ class UserController {
 
   static async addSubscriber(req: Request, res: Response) {
     try {
-      const subscriber = await SubscriberModel.getSubscriberByEmail(req.body.email);
-      if (subscriber) throw new Error('Subscriber already exists');
+      const email: string = req.body.email;
+      const subscriber = await db.subscriber.findFirst({ where: { email } });
 
-      await SubscriberModel.addSubscriber(req.body.email);
+      if (subscriber) throw new Error('Subscriber already exists');
+      await db.subscriber.create({ data: { email } });
 
       req.flash('alertMessage', 'Subscriber added successfully');
       req.flash('alertType', 'success');
@@ -502,10 +567,13 @@ class UserController {
 
   static async updateSubscriber(req: Request, res: Response) {
     try {
-      const id = parseInt(req.body.id as string, 10);
-      const email = req.body.email;
+      const id: number = parseInt(req.body.id as string, 10);
+      const email: string = req.body.email;
 
-      await SubscriberModel.updateSubscriber({ id, email });
+      await db.subscriber.update({
+        where: { id },
+        data: { email },
+      });
 
       req.flash('alertMessage', 'Subscriber updated successfully');
       req.flash('alertType', 'success');
@@ -519,8 +587,8 @@ class UserController {
 
   static async deleteSubscriber(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id as string, 10);
-      await SubscriberModel.deleteSubscriber(id);
+      const id: number = parseInt(req.params.id as string, 10);
+      await db.subscriber.delete({ where: { id } });
 
       req.flash('alertMessage', 'Subscriber deleted successfully');
       req.flash('alertType', 'success');
@@ -533,13 +601,13 @@ class UserController {
   }
 
   static async faqs(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const faqs = await FAQModel.getAllFAQs();
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, faqs] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: { role: true },
+      }),
+      db.faq.findMany(),
+    ]);
 
     res.render('user/faqs', {
       title: 'Hivemind | FAQs',
@@ -555,9 +623,11 @@ class UserController {
 
   static async addFAQ(req: Request, res: Response) {
     try {
-      await FAQModel.addFAQ({
-        question: req.body.question,
-        answer: req.body.answer,
+      await db.faq.create({
+        data: {
+          question: req.body.question,
+          answer: req.body.answer,
+        },
       });
 
       req.flash('alertMessage', 'FAQ added successfully');
@@ -572,8 +642,8 @@ class UserController {
 
   static async deleteFAQ(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id as string, 10);
-      await FAQModel.deleteFAQ(id);
+      const id: number = parseInt(req.params.id as string, 10);
+      await db.faq.delete({ where: { id } });
 
       req.flash('alertMessage', 'FAQ deleted successfully');
       req.flash('alertType', 'success');
@@ -587,11 +657,13 @@ class UserController {
 
   static async updateFAQ(req: Request, res: Response) {
     try {
-      const id = parseInt(req.body.id as string, 10);
-      await FAQModel.updateFAQ({
-        id,
-        question: req.body.question,
-        answer: req.body.answer,
+      const id: number = parseInt(req.body.id as string, 10);
+      await db.faq.update({
+        where: { id },
+        data: {
+          question: req.body.question,
+          answer: req.body.answer,
+        },
       });
 
       req.flash('alertMessage', 'FAQ updated successfully');
@@ -605,13 +677,13 @@ class UserController {
   }
 
   static async clients(req: Request, res: Response) {
-    const user = await UserModel.getUser(req.session.user!.id);
-    const clients = await ClientModel.getAllClients();
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, clients] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: { role: true },
+      }),
+      db.client.findMany(),
+    ]);
 
     res.render('user/clients', {
       title: 'Hivemind | Clients',
@@ -627,9 +699,11 @@ class UserController {
 
   static async addClient(req: Request, res: Response) {
     try {
-      await ClientModel.addClient({
-        logo: req.file!.filename,
-        name: req.body.clientName,
+      await db.client.create({
+        data: {
+          logo: req.file!.filename,
+          name: req.body.clientName,
+        },
       });
 
       req.flash('alertMessage', 'Client added successfully');
@@ -644,11 +718,16 @@ class UserController {
 
   static async deleteClient(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id as string, 10);
-      const client = await ClientModel.getClient(id);
+      const id: number = parseInt(req.params.id as string, 10);
+      const client = await db.client.findFirst({
+        where: { id },
+        select: { logo: true },
+      });
 
-      await unlink(`public/images/${client!.logo}`);
-      await ClientModel.deleteClient(id);
+      await Promise.all([
+        unlink(`public/images/${client!.logo}`),
+        db.client.delete({ where: { id } }),
+      ]);
 
       req.flash('alertMessage', 'Client deleted successfully');
       req.flash('alertType', 'success');
@@ -661,13 +740,12 @@ class UserController {
   }
 
   static async testimonies(req: Request, res: Response) {
-    const testimonies = await TestimonyModel.getAllTestimony();
-    const user = await UserModel.getUser(req.session.user!.id);
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, testimonies] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+      }),
+      db.testimony.findMany(),
+    ]);
 
     res.render('user/testimonies', {
       title: 'Hivemind | Testimony',
@@ -683,12 +761,14 @@ class UserController {
 
   static async addTestimony(req: Request, res: Response) {
     try {
-      await TestimonyModel.addTestimony({
-        client_name: req.body.clientName,
-        client_photo: req.file!.filename,
-        occupation: req.body.occupation,
-        message: req.body.message,
-        rate: parseFloat(req.body.rate as string),
+      await db.testimony.create({
+        data: {
+          client_name: req.body.clientName,
+          client_photo: req.file!.filename,
+          occupation: req.body.occupation,
+          message: req.body.message,
+          rate: parseFloat(req.body.rate as string),
+        },
       });
 
       req.flash('alertMessage', 'Testimony added successfully');
@@ -703,8 +783,11 @@ class UserController {
 
   static async updateTestimony(req: Request, res: Response) {
     try {
-      const id = parseInt(req.body.id as string, 10);
-      const testimony = await TestimonyModel.getTestimony(id);
+      const id: number = parseInt(req.body.id as string, 10);
+      const testimony = await db.testimony.findFirst({
+        where: { id },
+        select: { client_photo: true },
+      });
 
       if (req.file) {
         const oldClientPhoto = `public/images/${testimony!.client_photo}`;
@@ -713,13 +796,15 @@ class UserController {
         });
       }
 
-      await TestimonyModel.updateTestimony({
-        id,
-        client_name: req.body.clientName,
-        client_photo: req.file ? req.file.filename : testimony!.client_photo,
-        occupation: req.body.occupation,
-        message: req.body.message,
-        rate: parseFloat(req.body.rate as string),
+      await db.testimony.update({
+        where: { id },
+        data: {
+          client_name: req.body.clientName,
+          client_photo: req.file?.filename ?? testimony!.client_photo,
+          occupation: req.body.occupation,
+          message: req.body.message,
+          rate: parseFloat(req.body.rate as string),
+        },
       });
 
       req.flash('alertMessage', 'Testimony updated successfully');
@@ -735,10 +820,13 @@ class UserController {
 
   static async deleteTestimony(req: Request, res: Response) {
     try {
-      const testimony = await TestimonyModel.getTestimony(parseInt(req.params.id as string, 10));
+      const id: number = parseInt(req.params.id as string, 10);
+      const testimony = await db.testimony.findFirst({ where: { id } });
 
-      await unlink(`public/images/${testimony!.client_photo}`);
-      await TestimonyModel.deleteTestimony(parseInt(req.params.id as string, 10));
+      await Promise.all([
+        unlink(`public/images/${testimony!.client_photo}`),
+        db.testimony.delete({ where: { id } }),
+      ]);
 
       req.flash('alertMessage', 'Testimony deleted successfully');
       req.flash('alertType', 'success');
@@ -751,13 +839,13 @@ class UserController {
   }
 
   static async services(req: Request, res: Response) {
-    const services = await ServiceModel.getAllServices();
-    const user = await UserModel.getUser(req.session.user!.id);
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, services] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: { role: true },
+      }),
+      db.service.findMany(),
+    ]);
 
     res.render('user/services', {
       title: 'Hivemind | Services',
@@ -773,10 +861,12 @@ class UserController {
 
   static async addService(req: Request, res: Response) {
     try {
-      await ServiceModel.addService({
-        name: req.body.serviceName,
-        description: req.body.description,
-        thumbnail: req.file!.filename,
+      await db.service.create({
+        data: {
+          name: req.body.serviceName,
+          description: req.body.description,
+          thumbnail: req.file!.filename,
+        },
       });
 
       req.flash('alertMessage', 'Service added successfully');
@@ -791,8 +881,11 @@ class UserController {
 
   static async updateService(req: Request, res: Response) {
     try {
-      const id = parseInt(req.body.id as string, 10);
-      const service = await ServiceModel.getService(id);
+      const id: number = parseInt(req.body.id as string, 10);
+      const service = await db.service.findFirst({
+        where: { id },
+        select: { thumbnail: true },
+      });
 
       if (req.file) {
         const oldThumbnail = `public/images/${service!.thumbnail}`;
@@ -801,11 +894,13 @@ class UserController {
         });
       }
 
-      await ServiceModel.updateService({
-        id,
-        name: req.body.serviceName,
-        description: req.body.description,
-        thumbnail: req.file ? req.file.filename : service!.thumbnail,
+      await db.service.update({
+        where: { id },
+        data: {
+          name: req.body.serviceName,
+          description: req.body.description,
+          thumbnail: req.file?.filename ?? service!.thumbnail,
+        },
       });
 
       req.flash('alertMessage', 'Service updated successfully');
@@ -820,15 +915,21 @@ class UserController {
 
   static async deleteService(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id as string, 10);
-      const service = await ServiceModel.getService(id);
-      const portfolios = await PortfolioModel.getAllPortfolios();
-      const isServiceUsed = portfolios.some((portfolio) => portfolio.serviceId === id);
+      const id: number = parseInt(req.params.id as string, 10);
+      const service = await db.service.findFirst({
+        where: { id },
+        include: { portfolio: true },
+      });
 
-      if (isServiceUsed) throw new Error('Service is being used by portfolios, delete them first!');
+      if (service!.portfolio.length > 0) {
+        throw new Error('Service is being used by portfolios, delete them first!');
+      }
 
-      await unlink(`public/images/${service!.thumbnail}`);
-      await ServiceModel.deleteService(id);
+      await Promise.all([
+        unlink(`public/images/${service!.thumbnail}`),
+        db.service.delete({ where: { id } }),
+      ]);
+
       req.flash('alertMessage', 'Service deleted successfully');
       req.flash('alertType', 'success');
     } catch (error: any) {
@@ -840,14 +941,14 @@ class UserController {
   }
 
   static async portfolios(req: Request, res: Response) {
-    const portfolios = await PortfolioModel.getAllPortfolios();
-    const services = await ServiceModel.getAllServices();
-    const user = await UserModel.getUser(req.session.user!.id);
-    const roles = await RoleModel.getAllRoles();
-
-    roles.forEach((role) => {
-      if (user!.roleId === role.id) user!.roleName = role.name;
-    });
+    const [user, services, portfolios] = await Promise.all([
+      db.user.findFirst({
+        where: { id: req.session.user!.id },
+        include: { role: true },
+      }),
+      db.service.findMany(),
+      db.portfolio.findMany(),
+    ]);
 
     res.render('user/portfolios', {
       title: 'Hivemind | Portfolio',
@@ -864,11 +965,13 @@ class UserController {
 
   static async addPortfolio(req: Request, res: Response) {
     try {
-      await PortfolioModel.addPortfolio({
-        name: req.body.portfolioName,
-        thumbnail: req.file!.filename,
-        orientation: req.body.orientation,
-        serviceId: parseInt(req.body.serviceId as string, 10),
+      await db.portfolio.create({
+        data: {
+          name: req.body.portfolioName,
+          thumbnail: req.file!.filename,
+          orientation: req.body.orientation,
+          serviceId: parseInt(req.body.serviceId as string, 10),
+        },
       });
 
       req.flash('alertType', 'success');
@@ -883,22 +986,27 @@ class UserController {
 
   static async updatePortfolio(req: Request, res: Response) {
     try {
-      const id = parseInt(req.body.portfolioId as string, 10);
-      const portfolio = await PortfolioModel.getPortfolio(id);
-      const oldThumbnail = `public/images/${portfolio!.thumbnail}`;
+      const id: number = parseInt(req.body.portfolioId as string, 10);
+      const portfolio = await db.portfolio.findFirst({
+        where: { id },
+        select: { thumbnail: true },
+      });
 
       if (req.file) {
+        const oldThumbnail = `public/images/${portfolio!.thumbnail}`;
         access(oldThumbnail, constants.F_OK, (err) => {
           if (!err) unlink(oldThumbnail);
         });
       }
 
-      await PortfolioModel.updatePortfolio({
-        id,
-        name: req.body.portfolioName,
-        thumbnail: req.file ? req.file.filename : portfolio!.thumbnail,
-        orientation: req.body.orientation,
-        serviceId: parseInt(req.body.serviceId as string, 10),
+      await db.portfolio.update({
+        where: { id },
+        data: {
+          name: req.body.portfolioName,
+          thumbnail: req.file?.filename ?? portfolio!.thumbnail,
+          orientation: req.body.orientation,
+          serviceId: parseInt(req.body.serviceId as string, 10),
+        },
       });
 
       req.flash('alertType', 'success');
@@ -913,10 +1021,16 @@ class UserController {
 
   static async deletePortfolio(req: Request, res: Response) {
     try {
-      const portfolio = await PortfolioModel.getPortfolio(parseInt(req.params.id as string, 10));
+      const id: number = parseInt(req.params.id as string, 10);
+      const portfolio = await db.portfolio.findFirst({
+        where: { id },
+        select: { thumbnail: true },
+      });
 
-      await unlink(`public/images/${portfolio!.thumbnail}`);
-      await PortfolioModel.deletePortfolio(parseInt(req.params.id as string, 10));
+      await Promise.all([
+        unlink(`public/images/${portfolio!.thumbnail}`),
+        db.portfolio.delete({ where: { id } }),
+      ]);
 
       req.flash('alertType', 'success');
       req.flash('alertMessage', 'Portfolio deleted successfully');

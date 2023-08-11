@@ -6,5 +6,8 @@ declare module 'express-session' {
       id: number;
       roleId: number;
     };
+    blog: {
+      id: number;
+    }
   }
 }

@@ -9,7 +9,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">Services</h1>
 
-          <% if(user.roleName === 'Admin') { %>
+          <% if(user.role.name === 'Admin') { %>
           <button
             type="button"
             class="btn btn-primary"
@@ -34,7 +34,7 @@
                       <th>Thumbnail</th>
                       <th>Name</th>
                       <th>Description</th>
-                      <% if(user.roleName === 'Admin') { %>
+                      <% if(user.role.name === 'Admin') { %>
                       <th>Actions</th>
                       <% } %>
                     </tr>
@@ -61,7 +61,7 @@
                       </td>
                       <td><%= service.name %></td>
                       <td><%= service.description %></td>
-                      <% if(user.roleName === 'Admin') { %>
+                      <% if(user.role.name === 'Admin') { %>
                       <td>
                         <form
                           action="/user/services/<%= service.id %>?_method=DELETE"
