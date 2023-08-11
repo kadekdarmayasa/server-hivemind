@@ -218,7 +218,8 @@
 
       canvas.toBlob(function (blob) {
         const file = new File([blob], 'profile.png', { type: 'image/png' });
-        const formData = new FormData().append('photo', file);
+        const formData = new FormData();
+        formData.append('photo', file);
 
         $.ajax('/user/update-photo?_method=PUT', {
           method: 'POST',
