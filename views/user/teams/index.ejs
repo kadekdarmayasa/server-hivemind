@@ -25,8 +25,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Photo</th>
                       <th>Name</th>
                       <th>Username</th>
                       <th>Role</th>
@@ -40,34 +38,41 @@
                   <tbody>
                     <% teams.forEach((team) => { %>
                     <tr>
-                      <td><%= team.id %></td>
-                      <td>
-                        <img
-                          src="/public/images/<%= team.publicPhoto  %>"
-                          alt="<%= team.name %>"
-                          style="width: 50px"
-                        />
-                      </td>
-                      <td>
-                        <%= team.name %> <% if(user.id === team.id) { %>
-                        <span class="badge badge-success badge-pill">You</span>
-                        <% } %>
-                      </td>
+                      <td><%= team.name %></td>
                       <td><%= team.username %></td>
-                      <td><%= team.roleName %></td>
+                      <td><%= team.role.name %></td>
                       <td><%= team.email %></td>
                       <td><%= team.linkedin %></td>
                       <% if(user.role.name === 'Admin') { %>
                       <td>
                         <form action="/user/teams/<%= team.id %>?_method=DELETE" method="post">
-                          <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+                          <button
+                            type="submit"
+                            title="Delete Team"
+                            data-toggle-tooltip
+                            class="btn btn-danger btn-circle btn-sm delete-btn mt-2"
+                          >
                             <i class="fas fa-trash"></i>
                           </button>
                           <button
                             type="button"
                             data-toggle="modal"
+                            data-toggle-tooltip
+                            title="View Photo"
+                            data-target="#fotoModal"
+                            class="btn btn-primary btn-circle btn-sm show-photo-btn mt-2"
+                            data-photo="<%= team.publicPhoto %>"
+                            data-team-name="<%= team.name %>"
+                          >
+                            <i class="fas fa-image"></i>
+                          </button>
+                          <button
+                            type="button"
+                            data-toggle="modal"
                             data-target="#updateTeam"
-                            class="btn btn-success btn-circle btn-sm update-btn"
+                            title="update Team"
+                            data-toggle-tooltip
+                            class="btn btn-success btn-circle btn-sm update-btn mt-2"
                             data-team-id="<%= team.id %>"
                             data-team-name="<%= team.name %>"
                             data-team-username="<%= team.username %>"
@@ -89,7 +94,8 @@
           </div>
         </div>
 
-        <%- include('./add-modal.ejs') %><%- include('./update-modal.ejs') %>
+        <%- include('./add-modal.ejs') %><%- include('./update-modal.ejs') %> <%-
+        include('./foto-modal.ejs') %>
       </div>
     </div>
   </div>
@@ -124,6 +130,16 @@
         $('#updateEmail').val(teamEmail);
         $('#updateLinkedin').val(teamLinkedin);
         $('#updateRoleId').val(teamRole);
+      });
+    });
+
+  $('.show-photo-btn')
+    .toArray()
+    .forEach(function (showPhotoButton) {
+      $(showPhotoButton).on('click', function () {
+        const photo = $(this).data('photo');
+        const name = $(this).data('team-name');
+        $('#publicPhotoPreview').attr('src', `/public/images/${photo}`).attr('alt', `${name}`);
       });
     });
 </script>

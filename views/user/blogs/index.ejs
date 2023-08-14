@@ -84,12 +84,10 @@
 
 <%- include('../../templates/logout-modal.ejs') %> <%- include('../../templates/scripts.ejs') %>
 <script>
-  ClassicEditor.create(document.querySelector('#editor')).catch((error) => {
-    console.error(error);
-  });
-
-  ClassicEditor.create(document.querySelector('#updateEditor')).catch((error) => {
-    console.error(error);
+  $(document).ready(() => {
+    ClassicEditor.create(document.querySelector('#editor')).catch((error) => {
+      console.error(error);
+    });
   });
 
   $('.delete-btn')

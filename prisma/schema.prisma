@@ -7,10 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model user {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(100)
+  username    String   @unique() @db.VarChar(100)
+  password    String   @db.VarChar(255)
+  photo       String?  @db.VarChar(100)
+  publicPhoto String?  @map("public_photo") @db.VarChar(100)
+  email       String?  @unique() @db.VarChar(100)
+  linkedin    String?  @unique() @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  blog        blog[]   @relation("WrittenBlogs")
+  role        role     @relation(fields: [roleId], references: [id])
+  roleId      String
+}
+
+model role {
+  id   String @id @default(uuid())
+  name String @db.VarChar(100)
+  user user[]
+}
+
 model blog {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique(map: "Blog_title_key") @db.VarChar(100)
-  slug        String   @unique(map: "Blog_slug_key") @db.VarChar(100)
+  id          String   @id @default(uuid())
+  title       String   @unique() @db.VarChar(100)
+  slug        String   @unique() @db.VarChar(100)
   description String   @db.Text
   coverImage  String   @map("cover_image") @db.VarChar(100)
   content     String   @db.Text
@@ -19,45 +41,35 @@ model blog {
   publishedAt DateTime @default(now()) @map("published_at")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  userId      Int
-  user        user     @relation(fields: [userId], references: [id], map: "Blog_userId_fkey")
-
-  @@index([userId], map: "Blog_userId_fkey")
+  author      user     @relation("WrittenBlogs", fields: [authorId], references: [id])
+  authorId    String
 }
 
 model client {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(uuid())
   logo String @db.VarChar(100)
   name String @db.VarChar(100)
 }
 
 model faq {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(uuid())
   question String @db.VarChar(100)
   answer   String @db.Text
 }
 
 model portfolio {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid())
   name        String   @db.VarChar(100)
   thumbnail   String   @db.VarChar(100)
   orientation String
-  serviceId   Int
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  service     service  @relation(fields: [serviceId], references: [id], map: "Portfolio_serviceId_fkey")
-
-  @@index([serviceId], map: "Portfolio_serviceId_fkey")
-}
-
-model role {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(100)
-  user user[]
+  service     service  @relation(fields: [serviceId], references: [id])
+  serviceId   String
 }
 
 model service {
-  id          Int         @id @default(autoincrement())
+  id          String      @id @default(uuid())
   name        String      @db.VarChar(100)
   description String      @db.Text
   thumbnail   String      @db.VarChar(100)
@@ -67,33 +79,15 @@ model service {
 }
 
 model subscriber {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(uuid())
   email String @db.VarChar(100)
 }
 
 model testimony {
-  id          Int    @id @default(autoincrement())
+  id          String @id @default(uuid())
   clientName  String @map("client_name") @db.VarChar(100)
   clientPhoto String @map("client_photo") @db.VarChar(100)
   occupation  String @db.VarChar(100)
   message     String @db.Text
   rate        Float
-}
-
-model user {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  username    String   @unique(map: "User_username_key") @db.VarChar(100)
-  password    String   @db.VarChar(255)
-  roleId      Int
-  photo       String?  @db.VarChar(100)
-  publicPhoto String?  @map("public_photo") @db.VarChar(100)
-  email       String?  @unique(map: "User_email_key") @db.VarChar(100)
-  linkedin    String?  @unique(map: "User_linkedin_key") @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  blog        blog[]
-  role        role     @relation(fields: [roleId], references: [id], map: "User_roleId_fkey")
-
-  @@index([roleId], map: "User_roleId_fkey")
 }

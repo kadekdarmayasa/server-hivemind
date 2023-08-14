@@ -50,11 +50,11 @@
             />
           </div>
           <div class="form-group">
-            <label for="updateRoleId">Role ID</label>
+            <label for="updateRoleId">Role</label>
             <select name="roleId" id="updateRoleId" class="form-control" required>
               <option value="">---</option>
               <% roles.forEach((role) => { %>
-              <option value="<%= role.id %>"><%= role.name %> (<%= role.id %>)</option>
+              <option value="<%= role.id %>"><%= role.name %></option>
               <% }) %>
             </select>
           </div>

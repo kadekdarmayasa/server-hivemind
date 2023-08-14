@@ -1,6 +1,6 @@
 import express from 'express';
 import { transporter } from './nodemailer.transport';
-import { createEmailTemplate } from '../src/templates/template-creator';
+import { createEmailTemplate } from './templates/template-creator';
 
 interface Subscriber {
   email: string;

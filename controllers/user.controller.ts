@@ -14,7 +14,7 @@ class UserController {
   }
 
   static async dashboard(req: Request, res: Response) {
-    const userId: number = req.session.user!.id;
+    const userId: string = req.session.user!.id;
     const [user, users, services, portfolios, clients] = await Promise.all([
       db.user.findFirst({
         where: { id: userId },
@@ -75,7 +75,7 @@ class UserController {
           username: req.body.username,
           email: req.body.email,
           linkedin: req.body.linkedin,
-          roleId: parseInt(req.body.roleId as string, 10),
+          roleId: req.body.roleId,
         },
       });
 
@@ -91,7 +91,7 @@ class UserController {
 
   static async updatePassword(req: Request, res: Response) {
     try {
-      const userId: number = req.session.user!.id;
+      const userId: string = req.session.user!.id;
       const user = await db.user.findFirst({
         where: { id: userId },
         select: { password: true },
@@ -118,7 +118,7 @@ class UserController {
 
   static async updatePhotoProfile(req: Request, res: Response) {
     try {
-      const userId: number = req.session.user!.id;
+      const userId: string = req.session.user!.id;
       const user = await db.user.findFirst({
         where: { id: userId },
         select: { photo: true },
@@ -190,11 +190,9 @@ class UserController {
 
   static async updateRole(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.roleId as string, 10);
-      const name: string = req.body.roleName;
       await db.role.update({
-        where: { id },
-        data: { name },
+        where: { id: req.body.roleId },
+        data: { name: req.body.roleName },
       });
 
       req.flash('alertMessage', 'Role updated successfully');
@@ -209,9 +207,8 @@ class UserController {
 
   static async deleteRole(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
       await db.role.delete({
-        where: { id },
+        where: { id: req.params.id },
       });
 
       req.flash('alertMessage', 'Role deleted successfully');
@@ -231,6 +228,13 @@ class UserController {
         include: { role: true },
       }),
       db.user.findMany({
+        where: {
+          role: {
+            isNot: {
+              name: 'Admin',
+            },
+          },
+        },
         include: { role: true },
       }),
       db.role.findMany(),
@@ -251,7 +255,7 @@ class UserController {
 
   static async updateTeam(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.id as string, 10);
+      const id: string = req.body.id;
       const team = await db.user.findFirst({
         where: { id },
       });
@@ -270,7 +274,7 @@ class UserController {
           username: req.body.username,
           email: req.body.email,
           linkedin: req.body.linkedin,
-          roleId: parseInt(req.body.roleId as string, 10),
+          roleId: req.body.roleId,
           publicPhoto: req.file?.filename ?? team!.publicPhoto,
         },
       });
@@ -298,7 +302,7 @@ class UserController {
           linkedin: req.body.linkedin,
           photo: 'default-profile.png',
           publicPhoto: req.file!.filename,
-          roleId: parseInt(req.body.roleId as string, 10),
+          roleId: req.body.roleId,
         },
       });
 
@@ -314,7 +318,7 @@ class UserController {
 
   static async deleteTeam(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const team = await db.user.findFirst({
         where: { id },
         select: {
@@ -376,7 +380,7 @@ class UserController {
           coverImage: files['coverImage'][0].filename,
           published: false,
           publishedAt: new Date(),
-          userId: req.session.user!.id,
+          authorId: req.session.user!.id,
         },
       });
 
@@ -392,7 +396,7 @@ class UserController {
 
   static async updateBlogView(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const [user, services, blog] = await Promise.all([
         db.user.findFirst({
           where: { id: req.session.user!.id },
@@ -426,7 +430,7 @@ class UserController {
       const files = req.files as CustomFiles;
       const blogThumbnail = files['blogThumbnail'];
       const coverImage = files['coverImage'];
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const blog = await db.blog.findFirst({ where: { id } });
 
       if (!isFilesEmpty(files)) {
@@ -453,7 +457,7 @@ class UserController {
           coverImage: coverImage[0]?.filename ?? blog!.coverImage,
           published: blog!.published,
           publishedAt: blog!.published ? blog!.publishedAt : new Date(),
-          userId: blog!.userId,
+          authorId: blog!.authorId,
         },
       });
 
@@ -469,7 +473,7 @@ class UserController {
 
   static async deleteBlog(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string);
+      const id: string = String(req.params.id);
       const blog = await db.blog.findFirst({
         where: { id },
       });
@@ -494,7 +498,7 @@ class UserController {
 
   static async publishBlog(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.id as string, 10);
+      const id: string = String(req.body.id);
       const blog = await db.blog.findFirst({
         where: { id },
       });
@@ -510,7 +514,7 @@ class UserController {
           coverImage: blog!.coverImage,
           published: true,
           publishedAt: new Date(),
-          userId: blog!.userId,
+          authorId: blog!.authorId,
         },
       });
 
@@ -567,7 +571,7 @@ class UserController {
 
   static async updateSubscriber(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.id as string, 10);
+      const id: string = String(req.body.id);
       const email: string = req.body.email;
 
       await db.subscriber.update({
@@ -587,8 +591,7 @@ class UserController {
 
   static async deleteSubscriber(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
-      await db.subscriber.delete({ where: { id } });
+      await db.subscriber.delete({ where: { id: req.params.id } });
 
       req.flash('alertMessage', 'Subscriber deleted successfully');
       req.flash('alertType', 'success');
@@ -642,8 +645,7 @@ class UserController {
 
   static async deleteFAQ(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
-      await db.faq.delete({ where: { id } });
+      await db.faq.delete({ where: { id: req.params.id } });
 
       req.flash('alertMessage', 'FAQ deleted successfully');
       req.flash('alertType', 'success');
@@ -657,9 +659,8 @@ class UserController {
 
   static async updateFAQ(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.id as string, 10);
       await db.faq.update({
-        where: { id },
+        where: { id: req.body.id },
         data: {
           question: req.body.question,
           answer: req.body.answer,
@@ -716,9 +717,44 @@ class UserController {
     res.redirect('/user/clients');
   }
 
+  static async updateClient(req: Request, res: Response) {
+    try {
+      const client = await db.client.findFirst({
+        where: {
+          id: req.body.clientId,
+        },
+      });
+
+      if (req.file) {
+        const oldLogo = `public/images/${client!.logo}`;
+        access(oldLogo, constants.F_OK, (err) => {
+          if (!err) unlink(oldLogo);
+        });
+      }
+
+      await db.client.update({
+        where: {
+          id: req.body.clientId,
+        },
+        data: {
+          logo: req.file?.filename ?? client!.logo,
+          name: req.body.clientName,
+        },
+      });
+
+      req.flash('alertType', 'success');
+      req.flash('alertMessage', 'Client updated successfully');
+    } catch (error: any) {
+      req.flash('alertType', 'danger');
+      req.flash('alertMessage', error.message);
+    }
+
+    res.redirect('/user/clients');
+  }
+
   static async deleteClient(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const client = await db.client.findFirst({
         where: { id },
         select: { logo: true },
@@ -783,7 +819,7 @@ class UserController {
 
   static async updateTestimony(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.id as string, 10);
+      const id: string = String(req.body.id);
       const testimony = await db.testimony.findFirst({
         where: { id },
         select: { clientPhoto: true },
@@ -820,7 +856,7 @@ class UserController {
 
   static async deleteTestimony(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const testimony = await db.testimony.findFirst({ where: { id } });
 
       await Promise.all([
@@ -881,7 +917,7 @@ class UserController {
 
   static async updateService(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.id as string, 10);
+      const id: string = String(req.body.id);
       const service = await db.service.findFirst({
         where: { id },
         select: { thumbnail: true },
@@ -915,7 +951,7 @@ class UserController {
 
   static async deleteService(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const service = await db.service.findFirst({
         where: { id },
         include: { portfolio: true },
@@ -970,7 +1006,7 @@ class UserController {
           name: req.body.portfolioName,
           thumbnail: req.file!.filename,
           orientation: req.body.orientation,
-          serviceId: parseInt(req.body.serviceId as string, 10),
+          serviceId: req.body.serviceId,
         },
       });
 
@@ -986,7 +1022,7 @@ class UserController {
 
   static async updatePortfolio(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.body.portfolioId as string, 10);
+      const id: string = String(req.body.portfolioId);
       const portfolio = await db.portfolio.findFirst({
         where: { id },
         select: { thumbnail: true },
@@ -1005,7 +1041,7 @@ class UserController {
           name: req.body.portfolioName,
           thumbnail: req.file?.filename ?? portfolio!.thumbnail,
           orientation: req.body.orientation,
-          serviceId: parseInt(req.body.serviceId as string, 10),
+          serviceId: req.body.serviceId,
         },
       });
 
@@ -1021,7 +1057,7 @@ class UserController {
 
   static async deletePortfolio(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const portfolio = await db.portfolio.findFirst({
         where: { id },
         select: { thumbnail: true },

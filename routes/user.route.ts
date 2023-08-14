@@ -51,6 +51,12 @@ userRouter.post(
   processUpload(multer.upload.single('clientLogo'), '/user/clients'),
   UserController.addClient,
 );
+userRouter.put(
+  '/clients',
+  body('clientName').trim(),
+  processUpload(multer.upload.single('clientLogo'), '/user/clients'),
+  UserController.updateClient,
+);
 userRouter.delete('/clients/:id', UserController.deleteClient);
 
 userRouter.get('/testimonies', UserController.testimonies);

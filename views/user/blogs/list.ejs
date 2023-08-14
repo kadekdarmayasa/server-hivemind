@@ -2,11 +2,9 @@
   <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
     <thead>
       <tr>
-        <th>ID</th>
         <th>Thumbnail</th>
         <th>Title</th>
         <th>Slug</th>
-        <th>Description</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
@@ -14,17 +12,15 @@
     <tbody>
       <% blogs.forEach((blog) => { %>
       <tr>
-        <td><%= blog.id %></td>
         <td>
           <img
             src="/public/images/<%= blog.thumbnail  %>"
             alt="<%= blog.title %>"
-            style="width: 100px"
+            style="width: 200px"
           />
         </td>
         <td><%= blog.title %></td>
         <td><%= blog.slug %></td>
-        <td><%= blog.description %></td>
         <td>
           <% if(blog.published) { %>
           <span class="badge badge-success">Published</span>
@@ -34,10 +30,17 @@
         </td>
         <td>
           <form action="/user/blogs/<%= blog.id %>?_method=DELETE" method="post">
-            <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+            <button
+              type="submit"
+              data-toggle-tooltip
+              title="Delete Blog"
+              class="btn btn-danger btn-circle btn-sm delete-btn"
+            >
               <i class="fas fa-trash"></i>
             </button>
             <a
+              data-toggle-tooltip
+              title="Update Blog"
               href="/user/blogs/update/<%= blog.id %>"
               class="btn btn-success btn-circle btn-sm update-btn"
             >

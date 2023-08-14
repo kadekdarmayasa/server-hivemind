@@ -45,7 +45,7 @@ class ApiController {
             description: true,
             publishedAt: true,
             published: true,
-            user: { select: { username: true } },
+            author: { select: { username: true } },
           },
         }),
       ]);
@@ -55,7 +55,6 @@ class ApiController {
         .map((blog) => ({
           ...blog,
           published_at: dateFormat(new Date(blog.publishedAt!)),
-          author: blog.user.username,
         }));
 
       res.status(200).json({
@@ -98,7 +97,7 @@ class ApiController {
           description: true,
           publishedAt: true,
           published: true,
-          user: { select: { username: true } },
+          author: { select: { username: true } },
         },
       });
 
@@ -107,7 +106,6 @@ class ApiController {
         .map((blog) => ({
           ...blog,
           publishedAt: dateFormat(new Date(blog.publishedAt!)),
-          author: blog.user.username,
         }));
 
       res.status(200).json({ blogs: mappedBlogs });
@@ -118,7 +116,7 @@ class ApiController {
 
   static async getBlog(req: Request, res: Response) {
     try {
-      const id: number = parseInt(req.params.id as string, 10);
+      const id: string = String(req.params.id);
       const blog = await db.blog.findFirst({
         where: { id },
         select: {
@@ -131,7 +129,7 @@ class ApiController {
           content: true,
           coverImage: true,
           published: true,
-          user: { select: { username: true } },
+          author: { select: { username: true } },
         },
       });
 
@@ -140,7 +138,6 @@ class ApiController {
         blog: {
           ...blog,
           publishedAt: dateFormat(new Date(blog.publishedAt!)),
-          author: blog.user.username,
         },
       });
     } catch (err: any) {
@@ -160,7 +157,7 @@ class ApiController {
   static async portfolios(req: Request, res: Response) {
     try {
       const page: number = parseInt(req.body.page as string, 10);
-      const serviceId: number = parseInt(req.body.serviceId as string, 10);
+      const serviceId: string = String(req.body.serviceId);
       const take: number = 5;
       const skip: number = (page - 1) * take;
 
@@ -183,7 +180,8 @@ class ApiController {
 
       const mappedPortfolios = portfolios
         .filter((portfolio) => {
-          if (serviceId !== 0) return portfolio.service.id === serviceId;
+          if (serviceId !== '000000-0000-0000-0000-000000000000')
+            return portfolio.service.id === serviceId;
           return true;
         })
         .map((portfolio) => ({

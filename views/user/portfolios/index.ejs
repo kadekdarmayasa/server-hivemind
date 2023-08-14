@@ -30,7 +30,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>ID</th>
                       <th>Thumbnail</th>
                       <th>Portfolio Name</th>
                       <th>Orientation</th>
@@ -42,7 +41,6 @@
                   <tbody>
                     <% portfolios.forEach((portfolio) => { %>
                     <tr>
-                      <td><%= portfolio.id %></td>
                       <td>
                         <img
                           src="/public/images/<%= portfolio.thumbnail  %>"
@@ -58,7 +56,12 @@
                           action="/user/portfolios/<%= portfolio.id %>?_method=DELETE"
                           method="post"
                         >
-                          <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+                          <button
+                            type="submit"
+                            title="Delete Portfolio"
+                            data-toggle-tooltip
+                            class="btn btn-danger btn-circle btn-sm delete-btn"
+                          >
                             <i class="fas fa-trash"></i>
                           </button>
                           <button
@@ -66,6 +69,8 @@
                             class="btn btn-success btn-circle btn-sm update-btn"
                             data-toggle="modal"
                             data-target="#updatePortfolio"
+                            title="Update Portfolio"
+                            data-toggle-tooltip
                             data-portfolio-id="<%= portfolio.id %>"
                             data-service-id="<%= portfolio.serviceId %>"
                             data-portfolio-thumbnail="<%= portfolio.thumbnail %>"

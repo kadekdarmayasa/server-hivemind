@@ -67,7 +67,7 @@ describe('API ENDPOINT TESTING', () => {
     it('Should return 200 if image found', (done) => {
       chai
         .request(app)
-        .get('/api/v1/image/blogThumbnail-1690895848358.jpg')
+        .get('/api/v1/image/blogThumbnail-1691897514189.jpg')
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
@@ -93,7 +93,7 @@ describe('API ENDPOINT TESTING', () => {
     it('Should return 200 if blog found', (done) => {
       chai
         .request(app)
-        .get('/api/v1/blog/1')
+        .get('/api/v1/blog/08b182c6-7443-45fc-a1f6-8f28552780ad')
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
@@ -207,7 +207,7 @@ describe('API ENDPOINT TESTING', () => {
       chai
         .request(app)
         .post('/api/v1/subscriber')
-        .send({ email: 'nengahsuastini@gmail.com' })
+        .send({ email: 'xyz@gmail.com' })
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);

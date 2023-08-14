@@ -27,7 +27,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>ID</th>
                       <th>Email Address</th>
                       <th>Actions</th>
                     </tr>
@@ -35,18 +34,24 @@
                   <tbody>
                     <% subscribers.forEach((subscriber) => { %>
                     <tr>
-                      <td><%= subscriber.id %></td>
                       <td><%= subscriber.email %></td>
                       <td>
                         <form
                           action="/user/subscribers/<%= subscriber.id %>?_method=DELETE"
                           method="post"
                         >
-                          <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+                          <button
+                            type="submit"
+                            data-toggle-tooltip
+                            title="Delete Subsciber"
+                            class="btn btn-danger btn-circle btn-sm delete-btn"
+                          >
                             <i class="fas fa-trash"></i>
                           </button>
                           <button
                             type="button"
+                            data-toggle-tooltip
+                            title="Update Subsciber"
                             class="btn btn-success btn-circle btn-sm update-btn"
                             data-toggle="modal"
                             data-target="#updateSubscriber"

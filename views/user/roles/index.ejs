@@ -25,7 +25,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>ID</th>
                       <th>Role Name</th>
                       <% if(user.role.name === 'Admin') { %>
                       <th>Actions</th>
@@ -35,18 +34,24 @@
                   <tbody>
                     <% roles.forEach((role) => { %>
                     <tr>
-                      <td><%= role.id %></td>
                       <td><%= role.name %></td>
                       <% if(user.role.name === 'Admin') { %>
                       <td>
                         <form action="/user/roles/<%= role.id %>?_method=DELETE" method="post">
-                          <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+                          <button
+                            type="submit"
+                            title="Delete Role"
+                            data-toggle-tooltip
+                            class="btn btn-danger btn-circle btn-sm delete-btn"
+                          >
                             <i class="fas fa-trash"></i>
                           </button>
                           <button
                             type="button"
                             class="btn btn-success btn-circle btn-sm update-btn"
                             data-toggle="modal"
+                            title="Update Role"
+                            data-toggle-tooltip
                             data-target="#updateRole"
                             data-role-id="<%= role.id %>"
                             data-role-name="<%= role.name %>"

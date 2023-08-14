@@ -27,7 +27,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>ID</th>
                       <th>Client Photo</th>
                       <th>Client Name</th>
                       <th>Occupation</th>
@@ -39,12 +38,11 @@
                   <tbody>
                     <% testimonies.forEach((testimony) => { %>
                     <tr>
-                      <td><%= testimony.id %></td>
                       <td>
                         <img
                           src="/public/images/<%= testimony.clientPhoto  %>"
                           alt="<%= testimony.clientPhoto %>"
-                          style="width: 50px"
+                          style="width: 100px"
                         />
                       </td>
                       <td><%= testimony.clientName %></td>
@@ -56,7 +54,12 @@
                           action="/user/testimonies/<%= testimony.id %>?_method=DELETE"
                           method="post"
                         >
-                          <button type="submit" class="btn btn-danger btn-circle btn-sm delete-btn">
+                          <button
+                            type="submit"
+                            data-toggle-tooltip
+                            title="Delete Testimony"
+                            class="btn btn-danger btn-circle btn-sm delete-btn"
+                          >
                             <i class="fas fa-trash"></i>
                           </button>
                           <button
@@ -64,6 +67,8 @@
                             class="btn btn-success btn-circle btn-sm update-btn"
                             data-toggle="modal"
                             data-target="#updateTestimony"
+                            data-toggle-tooltip
+                            title="Update Testimony"
                             data-testimony-id="<%= testimony.id %>"
                             data-client-name="<%= testimony.clientName %>"
                             data-client-photo="<%= testimony.clientPhoto %>"

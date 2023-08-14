@@ -3,11 +3,8 @@ import 'express-session';
 declare module 'express-session' {
   interface SessionData {
     user: {
-      id: number;
-      roleId: number;
+      id: string;
+      roleId: string;
     };
-    blog: {
-      id: number;
-    }
   }
 }
