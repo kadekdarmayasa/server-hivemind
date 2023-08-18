@@ -7,11 +7,12 @@
     "seed": "ts-node --transpile-only ./prisma/seed.ts"
   },
   "scripts": {
-    "start": "nodemon app.ts",
-    "db-preview": "prisma studio",
-    "db-seed": "prisma db seed",
-    "db-push": "prisma db push",
-    "db-reset": "prisma migrate reset --skip-seed",
+    "dev": "nodemon app.ts",
+    "build": "ts-node app.ts",
+    "db:preview": "prisma studio",
+    "db:seed": "prisma db seed",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset --skip-seed",
     "test": "mocha --require ts-node/register --watch --extension ts --inline-diffs 'test/**/*.ts'"
   },
   "keywords": [],

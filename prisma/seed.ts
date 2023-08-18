@@ -418,7 +418,7 @@ async function getFAQs(): Promise<FAQ[]> {
 async function getSubscribers(): Promise<Omit<Subscriber, 'id'>[]> {
   return [
     { email: 'darmayasadiputra@gmail.com' },
-    { email: 'adiputrakadekdarmayasa@gmai.com' },
+    { email: 'adiputrakadekdarmayasa@gmail.com' },
     { email: 'johndoe@gmail.com' },
   ];
 }

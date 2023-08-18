@@ -24,6 +24,18 @@ describe('API ENDPOINT TESTING', () => {
       });
   });
 
+  it('GET: /api/v1/services', (done) => {
+    chai
+      .request(app)
+      .get('/api/v1/services')
+      .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.an('array');
+        done();
+      });
+  });
+
   it('GET: /api/v1/faqs', (done) => {
     chai
       .request(app)
@@ -31,8 +43,7 @@ describe('API ENDPOINT TESTING', () => {
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
-        expect(res.body).to.have.property('faqs');
-        expect(res.body.faqs).to.be.an('array');
+        expect(res.body).to.be.an('array');
         done();
       });
   });
@@ -44,8 +55,7 @@ describe('API ENDPOINT TESTING', () => {
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
-        expect(res.body).to.have.property('blogs');
-        expect(res.body.blogs).to.be.an('array');
+        expect(res.body).to.be.an('array');
         done();
       });
   });
@@ -76,11 +86,11 @@ describe('API ENDPOINT TESTING', () => {
     });
   });
 
-  describe('GET: /api/v1/blog/:id', () => {
+  describe('GET: /api/v1/blogs/:slug', () => {
     it('Should return 404 if could not be found', (done) => {
       chai
         .request(app)
-        .get('/api/v1/blog/121212')
+        .get('/api/v1/blogs/anything-you-want-zyx')
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(404);
@@ -93,11 +103,11 @@ describe('API ENDPOINT TESTING', () => {
     it('Should return 200 if blog found', (done) => {
       chai
         .request(app)
-        .get('/api/v1/blog/08b182c6-7443-45fc-a1f6-8f28552780ad')
+        .get('/api/v1/blogs/the-importance-of-seo-for-your-business-1691896805375')
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body.blog).to.have.property('id');
+          expect(res.body).to.have.property('id');
           done();
         });
     });
@@ -112,7 +122,7 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body.portfolios).to.be.an('array');
+          expect(res.body).to.be.an('array');
           done();
         });
     });
@@ -125,8 +135,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body.portfolios).to.be.an('array');
-          expect(res.body.portfolios.length).to.equal(0);
+          expect(res.body).to.be.an('array');
+          expect(res.body.length).to.equal(0);
           done();
         });
     });
@@ -139,8 +149,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body.portfolios).to.be.an('array');
-          expect(res.body.portfolios.length).to.equal(0);
+          expect(res.body).to.be.an('array');
+          expect(res.body.length).to.equal(0);
           done();
         });
     });
@@ -153,8 +163,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body.portfolios).to.be.an('array');
-          expect(res.body.portfolios.length).to.equal(0);
+          expect(res.body).to.be.an('array');
+          expect(res.body.length).to.equal(0);
           done();
         });
     });
@@ -168,8 +178,7 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.have.property('teams');
-          expect(res.body.teams).to.be.an('array');
+          expect(res.body).to.be.an('array');
           done();
         });
     });
@@ -181,18 +190,18 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          const admin = res.body.teams.find((team: any) => team.role.name === 'Admin');
+          const admin = res.body.find((team: any) => team.role.name === 'Admin');
           expect(admin).to.be.undefined;
           done();
         });
     });
   });
 
-  describe('POST: /api/v1/subscriber', () => {
+  describe('POST: /api/v1/subscribers', () => {
     it('Should return 400 if email is already subscribed', (done) => {
       chai
         .request(app)
-        .post('/api/v1/subscriber')
+        .post('/api/v1/subscribers')
         .send({ email: 'adiputrakadekdarmayasa@gmail.com' })
         .end((err, res) => {
           expect(err).to.be.null;
@@ -206,15 +215,15 @@ describe('API ENDPOINT TESTING', () => {
     it('Should return 200 if email is successfully subscribed', (done) => {
       chai
         .request(app)
-        .post('/api/v1/subscriber')
+        .post('/api/v1/subscribers')
         .send({ email: 'xyz@gmail.com' })
         .end((err, res) => {
           expect(err).to.be.null;
-          expect(res).to.have.status(200);
+          expect(res).to.have.status(201);
           expect(res.body).to.have.property('message');
           expect(res.body.message).to.equal('Subscribed successfully');
 
-          db.subscriber.findFirst({ orderBy: { id: 'desc' } }).then((subscriber) => {
+          db.subscriber.findFirst({ where: { email: 'xyz@gmail.com' } }).then((subscriber) => {
             db.subscriber.delete({ where: { id: subscriber?.id } }).then(() => done());
           });
         });

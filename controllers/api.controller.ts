@@ -4,6 +4,17 @@ import dateFormat from '../lib/date.format';
 import { access, constants } from 'node:fs';
 import { db } from '../lib/server.db';
 
+interface Portfolio {
+  id: string;
+  name: string;
+  thumbnail: string;
+  orientation: string;
+  service: {
+    id: string;
+    name: string;
+  };
+}
+
 class ApiController {
   static async homepage(req: Request, res: Response) {
     try {
@@ -18,6 +29,10 @@ class ApiController {
           },
         }),
         db.portfolio.findMany({
+          take: 6,
+          skip: 0,
+          where: { orientation: 'LANDSCAPE' },
+          orderBy: { id: 'desc' },
           select: {
             id: true,
             name: true,
@@ -54,7 +69,7 @@ class ApiController {
         .filter((blog) => blog.published)
         .map((blog) => ({
           ...blog,
-          published_at: dateFormat(new Date(blog.publishedAt!)),
+          publishedAt: dateFormat(new Date(blog.publishedAt!)),
         }));
 
       res.status(200).json({
@@ -65,7 +80,9 @@ class ApiController {
         blogs: mappedBlogs,
       });
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({
+        message: error.message,
+      });
     }
   }
 
@@ -81,6 +98,20 @@ class ApiController {
           res.status(200).sendFile(image);
         }
       });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async getServices(req: Request, res: Response) {
+    try {
+      const services = await db.service.findMany({
+        include: {
+          portfolio: true,
+        },
+      });
+
+      res.status(200).json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -108,7 +139,7 @@ class ApiController {
           publishedAt: dateFormat(new Date(blog.publishedAt!)),
         }));
 
-      res.status(200).json({ blogs: mappedBlogs });
+      res.status(200).json(mappedBlogs);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -116,9 +147,9 @@ class ApiController {
 
   static async getBlog(req: Request, res: Response) {
     try {
-      const id: string = String(req.params.id);
+      const slug: string = String(req.params.slug);
       const blog = await db.blog.findFirst({
-        where: { id },
+        where: { slug },
         select: {
           id: true,
           thumbnail: true,
@@ -135,10 +166,8 @@ class ApiController {
 
       if (!blog) return res.status(404).json({ message: 'Blog not found' });
       res.status(200).json({
-        blog: {
-          ...blog,
-          publishedAt: dateFormat(new Date(blog.publishedAt!)),
-        },
+        ...blog,
+        publishedAt: dateFormat(new Date(blog.publishedAt!)),
       });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
@@ -148,7 +177,7 @@ class ApiController {
   static async faqs(req: Request, res: Response) {
     try {
       const faqs = await db.faq.findMany();
-      res.status(200).json({ faqs });
+      res.status(200).json(faqs);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -160,23 +189,44 @@ class ApiController {
       const serviceId: string = String(req.body.serviceId);
       const take: number = 5;
       const skip: number = (page - 1) * take;
+      let portfolios: Portfolio[];
 
-      const portfolios = await db.portfolio.findMany({
-        skip,
-        take,
-        select: {
-          id: true,
-          name: true,
-          thumbnail: true,
-          orientation: true,
-          service: {
-            select: {
-              id: true,
-              name: true,
+      if (serviceId !== '000000-0000-0000-0000-000000000000') {
+        portfolios = await db.portfolio.findMany({
+          skip,
+          take,
+          where: { serviceId },
+          select: {
+            id: true,
+            name: true,
+            thumbnail: true,
+            orientation: true,
+            service: {
+              select: {
+                id: true,
+                name: true,
+              },
             },
           },
-        },
-      });
+        });
+      } else {
+        portfolios = await db.portfolio.findMany({
+          skip,
+          take,
+          select: {
+            id: true,
+            name: true,
+            thumbnail: true,
+            orientation: true,
+            service: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+      }
 
       const mappedPortfolios = portfolios
         .filter((portfolio) => {
@@ -189,7 +239,7 @@ class ApiController {
           orientation: portfolio.orientation.toLowerCase(),
         }));
 
-      res.status(200).json({ portfolios: mappedPortfolios });
+      res.status(200).json(mappedPortfolios);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -219,7 +269,7 @@ class ApiController {
         },
       });
 
-      res.status(200).json({ teams });
+      res.status(200).json(teams);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -232,7 +282,7 @@ class ApiController {
       if (subscriber) return res.status(400).json({ message: 'Email already subscribed' });
 
       await db.subscriber.create({ data: { email } });
-      res.status(200).json({ message: 'Subscribed successfully' });
+      res.status(201).json({ message: 'Subscribed successfully' });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
