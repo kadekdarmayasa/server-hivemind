@@ -31,7 +31,23 @@ describe('API ENDPOINT TESTING', () => {
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array');
+        expect(res.body.services).to.be.an('array');
+        done();
+      });
+  });
+
+  it('POST: /api/v1/blogs', (done) => {
+    chai
+      .request(app)
+      .post('/api/v1/blogs')
+      .send({
+        page: 1,
+      })
+      .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('blogs');
+        expect(res.body).to.have.property('hasMore');
         done();
       });
   });
@@ -43,19 +59,19 @@ describe('API ENDPOINT TESTING', () => {
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array');
+        expect(res.body.faqs).to.be.an('array');
         done();
       });
   });
 
-  it('GET: /api/v1/blogs', (done) => {
+  it('GET:/api/v1/subscribers', (done) => {
     chai
       .request(app)
-      .get('/api/v1/blogs')
+      .get('/api/v1/subscribers')
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array');
+        expect(res.body.subscribers).to.be.an('array');
         done();
       });
   });
@@ -107,7 +123,7 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.have.property('id');
+          expect(res.body.blog).to.have.property('id');
           done();
         });
     });
@@ -122,7 +138,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array');
+          expect(res.body).to.have.property('portfolios');
+          expect(res.body.portfolios).to.be.an('array');
           done();
         });
     });
@@ -135,8 +152,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(0);
+          expect(res.body.portfolios).to.be.an('array');
+          expect(res.body.portfolios.length).to.equal(0);
           done();
         });
     });
@@ -149,8 +166,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(0);
+          expect(res.body.portfolios).to.be.an('array');
+          expect(res.body.portfolios.length).to.equal(0);
           done();
         });
     });
@@ -163,8 +180,8 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(0);
+          expect(res.body.portfolios).to.be.an('array');
+          expect(res.body.portfolios.length).to.equal(0);
           done();
         });
     });
@@ -178,7 +195,7 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array');
+          expect(res.body.teams).to.be.an('array');
           done();
         });
     });
@@ -190,7 +207,7 @@ describe('API ENDPOINT TESTING', () => {
         .end((err, res) => {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          const admin = res.body.find((team: any) => team.role.name === 'Admin');
+          const admin = res.body.teams.find((team: any) => team.role.name === 'Admin');
           expect(admin).to.be.undefined;
           done();
         });
