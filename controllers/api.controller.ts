@@ -52,6 +52,7 @@ class ApiController {
           },
         }),
         db.blog.findMany({
+          orderBy: { id: 'desc' },
           select: {
             id: true,
             thumbnail: true,
@@ -103,7 +104,7 @@ class ApiController {
     }
   }
 
-  static async getServices(req: Request, res: Response) {
+  static async services(req: Request, res: Response) {
     try {
       const services = await db.service.findMany({
         include: {
@@ -111,35 +112,62 @@ class ApiController {
         },
       });
 
-      res.status(200).json(services);
+      res.status(200).json({ services });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   }
 
-  static async getBlogs(req: Request, res: Response) {
+  static async blogs(req: Request, res: Response) {
     try {
-      const blogs = await db.blog.findMany({
-        select: {
-          id: true,
-          thumbnail: true,
-          title: true,
-          slug: true,
-          description: true,
-          publishedAt: true,
-          published: true,
-          author: { select: { username: true } },
-        },
-      });
+      const { page } = req.body;
+      const take = 5;
+      const skip = (page - 1) * take;
 
-      const mappedBlogs = blogs
-        .filter((blog) => blog.published)
-        .map((blog) => ({
-          ...blog,
-          publishedAt: dateFormat(new Date(blog.publishedAt!)),
-        }));
+      const [blogs, nextBlogsData] = await Promise.all([
+        db.blog.findMany({
+          take,
+          skip,
+          orderBy: { id: 'desc' },
+          where: {
+            published: true,
+          },
+          select: {
+            id: true,
+            thumbnail: true,
+            title: true,
+            slug: true,
+            description: true,
+            publishedAt: true,
+            published: true,
+            author: { select: { username: true } },
+          },
+        }),
+        db.blog.findMany({
+          take,
+          skip: page * take,
+          where: {
+            published: true,
+          },
+          select: {
+            id: true,
+            thumbnail: true,
+            title: true,
+            slug: true,
+            description: true,
+            publishedAt: true,
+            published: true,
+            author: { select: { username: true } },
+          },
+        }),
+      ]);
 
-      res.status(200).json(mappedBlogs);
+      const mappedBlogs = blogs.map((blog) => ({
+        ...blog,
+        publishedAt: dateFormat(new Date(blog.publishedAt!)),
+      }));
+
+      res.status(200).json({ blogs: mappedBlogs, hasMore: nextBlogsData.length > 0 });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -165,10 +193,12 @@ class ApiController {
       });
 
       if (!blog) return res.status(404).json({ message: 'Blog not found' });
-      res.status(200).json({
+      const mappedBlog = {
         ...blog,
         publishedAt: dateFormat(new Date(blog.publishedAt!)),
-      });
+      };
+
+      res.status(200).json({ blog: mappedBlog });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
@@ -177,7 +207,7 @@ class ApiController {
   static async faqs(req: Request, res: Response) {
     try {
       const faqs = await db.faq.findMany();
-      res.status(200).json(faqs);
+      res.status(200).json({ faqs });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -190,6 +220,7 @@ class ApiController {
       const take: number = 5;
       const skip: number = (page - 1) * take;
       let portfolios: Portfolio[];
+      let nextPortfoliosData: Portfolio[];
 
       if (serviceId !== '000000-0000-0000-0000-000000000000') {
         portfolios = await db.portfolio.findMany({
@@ -228,6 +259,51 @@ class ApiController {
         });
       }
 
+      if (serviceId !== '000000-0000-0000-0000-000000000000') {
+        nextPortfoliosData = await db.portfolio.findMany({
+          take,
+          skip: page * take,
+          orderBy: {
+            id: 'desc',
+          },
+          where: {
+            serviceId,
+          },
+          select: {
+            id: true,
+            name: true,
+            thumbnail: true,
+            orientation: true,
+            service: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+      } else {
+        nextPortfoliosData = await db.portfolio.findMany({
+          take,
+          skip: page * take,
+          orderBy: {
+            id: 'desc',
+          },
+          select: {
+            id: true,
+            name: true,
+            thumbnail: true,
+            orientation: true,
+            service: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+      }
+
       const mappedPortfolios = portfolios
         .filter((portfolio) => {
           if (serviceId !== '000000-0000-0000-0000-000000000000')
@@ -239,7 +315,10 @@ class ApiController {
           orientation: portfolio.orientation.toLowerCase(),
         }));
 
-      res.status(200).json(mappedPortfolios);
+      res.status(200).json({
+        portfolios: mappedPortfolios,
+        hasMore: nextPortfoliosData.length > 0,
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -269,13 +348,25 @@ class ApiController {
         },
       });
 
-      res.status(200).json(teams);
+      res.status(200).json({ teams });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   }
 
-  static async subscriber(req: Request, res: Response) {
+  static async getSubscribers(req: Request, res: Response) {
+    try {
+      const subscribers = await db.subscriber.findMany({
+        select: { email: true },
+      });
+
+      res.status(200).json({ subscribers });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async addSubscriber(req: Request, res: Response) {
     try {
       const email: string = req.body.email;
       const subscriber = await db.subscriber.findFirst({ where: { email } });
