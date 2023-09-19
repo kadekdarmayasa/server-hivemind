@@ -1,74 +1,12 @@
-import { db } from '../lib/server.db';
-import bcrypt from 'bcryptjs';
+import { db } from '../lib/server.db'
+import bcrypt from 'bcryptjs'
+import { Prisma } from '@prisma/client'
 
-interface User {
-  id: string;
-  name: string;
-  username: string;
-  password: string;
-  roleId: string;
-  photo: string;
-  publicPhoto?: string;
-  email: string;
-  linkedin: string;
+type User = Omit<Prisma.userCreateInput, 'role'> & { roleId: string }
+type Portfolio = Omit<Prisma.portfolioCreateInput, 'service'> & {
+  serviceId: string
 }
-
-interface Role {
-  id: string;
-  name: string;
-}
-
-interface Client {
-  logo: string;
-  name: string;
-}
-
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  thumbnail: string;
-}
-
-interface FAQ {
-  question: string;
-  answer: string;
-}
-
-interface Subscriber {
-  email: string;
-}
-
-interface Testimony {
-  clientName: string;
-  clientPhoto: string;
-  occupation: string;
-  message: string;
-  rate: number;
-}
-
-interface Portfolio {
-  id: string;
-  name: string;
-  thumbnail: string;
-  orientation: string;
-  serviceId: string;
-}
-
-interface Blog {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  coverImage: string;
-  content: string;
-  thumbnail: string;
-  published: boolean;
-  publishedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  authorId: string;
-}
+type Blog = Omit<Prisma.blogCreateInput, 'author'> & { authorId: string }
 
 async function getUsers(): Promise<User[]> {
   return [
@@ -126,17 +64,23 @@ async function getUsers(): Promise<User[]> {
       linkedin: 'rachellee',
       email: 'rachellee@gmail.com',
     },
-  ];
+  ]
 }
 
-async function getRoles(): Promise<Role[]> {
+async function getRoles(): Promise<Prisma.roleCreateInput[]> {
   return [
     { id: '5d809598-f83a-4138-a8dd-29a937264876', name: 'Admin' },
-    { id: 'faa7c49d-7a48-431b-bf29-500d8df65351', name: 'Digital Marketing Manager' },
-    { id: '1a3173b6-c5ee-4311-9284-33aa28001575', name: 'Web Developer Expert' },
+    {
+      id: 'faa7c49d-7a48-431b-bf29-500d8df65351',
+      name: 'Digital Marketing Manager',
+    },
+    {
+      id: '1a3173b6-c5ee-4311-9284-33aa28001575',
+      name: 'Web Developer Expert',
+    },
     { id: '8b36f02d-1ad3-4383-b181-ee4b06548242', name: 'Lead Developer' },
     { id: 'be80805c-0e6c-4437-a076-1340851b66ae', name: 'Sales Manager' },
-  ];
+  ]
 }
 
 async function getBlogs(): Promise<Blog[]> {
@@ -201,10 +145,10 @@ async function getBlogs(): Promise<Blog[]> {
       updatedAt: new Date('2023-10-08T03:32:07.915Z'),
       authorId: 'd678a1-19aa-1234-ee48-99a93726487e',
     },
-  ];
+  ]
 }
 
-async function getClients(): Promise<Client[]> {
+async function getClients(): Promise<Prisma.clientCreateInput[]> {
   return [
     { name: 'Amazon', logo: 'clientLogo-1689645227289.png' },
     { name: 'Apple', logo: 'clientLogo-1689645237712.png' },
@@ -214,10 +158,10 @@ async function getClients(): Promise<Client[]> {
     { name: 'Google', logo: 'clientLogo-1689645287644.png' },
     { name: 'Paypal', logo: 'clientLogo-1689645297158.png' },
     { name: 'Slack', logo: 'clientLogo-1689645305707.png' },
-  ];
+  ]
 }
 
-async function getTestimonies(): Promise<Testimony[]> {
+async function getTestimonies(): Promise<Prisma.testimonyCreateInput[]> {
   return [
     {
       clientName: 'Max Robinson',
@@ -267,10 +211,10 @@ async function getTestimonies(): Promise<Testimony[]> {
         "I've worked with several web design companies in the past, but none have delivered the same level of expertise and customer service as Hivemind. Their team took the time to understand my business and goals and created a website that truly reflects my brand. I would highly recommend their services.",
       rate: 4.5,
     },
-  ];
+  ]
 }
 
-async function getServices(): Promise<Service[]> {
+async function getServices(): Promise<Prisma.serviceCreateInput[]> {
   return [
     {
       id: '45f61d6c-89c6-4c11-8716-98e7c01f98b2',
@@ -314,7 +258,7 @@ async function getServices(): Promise<Service[]> {
       description:
         'Our experienced team of developers creates user-friendly, responsive apps that take your business to the next level.',
     },
-  ];
+  ]
 }
 
 async function getPortfolios(): Promise<Portfolio[]> {
@@ -382,10 +326,10 @@ async function getPortfolios(): Promise<Portfolio[]> {
       thumbnail: 'portfolioThumbnail-1691891479503.png',
       serviceId: 'c0536139-d3e4-4aad-b771-61e3c457b9b9',
     },
-  ];
+  ]
 }
 
-async function getFAQs(): Promise<FAQ[]> {
+async function getFAQs(): Promise<Prisma.faqCreateInput[]> {
   return [
     {
       question: 'What services does your company offer?',
@@ -412,30 +356,39 @@ async function getFAQs(): Promise<FAQ[]> {
       answer:
         'We use a variety of metrics to measure the success of our projects, including website traffic, engagement rates, conversion rates, and more. We work with our clients to establish clear goals and objectives for each project and use these metrics to track progress.',
     },
-  ];
+  ]
 }
 
-async function getSubscribers(): Promise<Omit<Subscriber, 'id'>[]> {
+async function getSubscribers(): Promise<Prisma.subscriberCreateInput[]> {
   return [
     { email: 'darmayasadiputra@gmail.com' },
     { email: 'adiputrakadekdarmayasa@gmail.com' },
     { email: 'johndoe@gmail.com' },
-  ];
+  ]
 }
 
 async function seed() {
-  const [users, roles, services, portfolios, clients, testimonies, faqs, subscribers, blogs] =
-    await Promise.all([
-      getUsers(),
-      getRoles(),
-      getServices(),
-      getPortfolios(),
-      getClients(),
-      getTestimonies(),
-      getFAQs(),
-      getSubscribers(),
-      getBlogs(),
-    ]);
+  const [
+    users,
+    roles,
+    services,
+    portfolios,
+    clients,
+    testimonies,
+    faqs,
+    subscribers,
+    blogs,
+  ] = await Promise.all([
+    getUsers(),
+    getRoles(),
+    getServices(),
+    getPortfolios(),
+    getClients(),
+    getTestimonies(),
+    getFAQs(),
+    getSubscribers(),
+    getBlogs(),
+  ])
 
   await Promise.all([
     db.role.createMany({ data: roles }),
@@ -444,27 +397,22 @@ async function seed() {
     db.testimony.createMany({ data: testimonies }),
     db.faq.createMany({ data: faqs }),
     db.subscriber.createMany({ data: subscribers }),
-  ]);
+  ])
 
   for (const user of users) {
+    const password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(8))
     await db.user.create({
-      data: {
-        ...user,
-        password: bcrypt.hashSync(user.password, bcrypt.genSaltSync(8)),
-      },
-    });
+      data: { ...user, password },
+    })
   }
 
-  await db.blog.createMany({ data: blogs });
-  await db.portfolio.createMany({ data: portfolios });
+  await db.blog.createMany({ data: blogs })
+  await db.portfolio.createMany({ data: portfolios })
 }
 
 seed()
-  .then(async () => {
-    await db.$disconnect();
+  .catch(async (e) => console.log(e.message))
+  .finally(async () => {
+    await db.$disconnect()
+    process.exit(1)
   })
-  .catch(async (e) => {
-    console.error(e);
-    await db.$disconnect();
-    process.exit(1);
-  });

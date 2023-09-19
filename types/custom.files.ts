@@ -1,1 +1,1 @@
-export type CustomFiles = { [fieldname: string]: Express.Multer.File[] };
+export type CustomFiles = { [fieldname: string]: Express.Multer.File[] }

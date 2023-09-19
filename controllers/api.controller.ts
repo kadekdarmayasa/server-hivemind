@@ -1,77 +1,78 @@
-import { Request, Response } from 'express';
-import path from 'path';
-import dateFormat from '../lib/date.format';
-import { access, constants } from 'node:fs';
-import { db } from '../lib/server.db';
+import { Request, Response } from 'express'
+import path from 'path'
+import dateFormat from '../lib/date.format'
+import { access, constants } from 'node:fs'
+import { db } from '../lib/server.db'
 
 interface Portfolio {
-  id: string;
-  name: string;
-  thumbnail: string;
-  orientation: string;
+  id: string
+  name: string
+  thumbnail: string
+  orientation: string
   service: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
 }
 
 class ApiController {
   static async homepage(req: Request, res: Response) {
     try {
-      const [clients, services, portfolios, testimonies, blogs] = await Promise.all([
-        db.client.findMany(),
-        db.service.findMany({
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            thumbnail: true,
-          },
-        }),
-        db.portfolio.findMany({
-          take: 6,
-          skip: 0,
-          where: { orientation: 'LANDSCAPE' },
-          orderBy: { id: 'desc' },
-          select: {
-            id: true,
-            name: true,
-            thumbnail: true,
-            orientation: true,
-            service: { select: { id: true, name: true } },
-          },
-        }),
-        db.testimony.findMany({
-          select: {
-            id: true,
-            clientName: true,
-            clientPhoto: true,
-            occupation: true,
-            message: true,
-            rate: true,
-          },
-        }),
-        db.blog.findMany({
-          orderBy: { id: 'desc' },
-          select: {
-            id: true,
-            thumbnail: true,
-            title: true,
-            slug: true,
-            description: true,
-            publishedAt: true,
-            published: true,
-            author: { select: { username: true } },
-          },
-        }),
-      ]);
+      const [clients, services, portfolios, testimonies, blogs] =
+        await Promise.all([
+          db.client.findMany(),
+          db.service.findMany({
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              thumbnail: true,
+            },
+          }),
+          db.portfolio.findMany({
+            take: 6,
+            skip: 0,
+            where: { orientation: 'LANDSCAPE' },
+            orderBy: { id: 'desc' },
+            select: {
+              id: true,
+              name: true,
+              thumbnail: true,
+              orientation: true,
+              service: { select: { id: true, name: true } },
+            },
+          }),
+          db.testimony.findMany({
+            select: {
+              id: true,
+              clientName: true,
+              clientPhoto: true,
+              occupation: true,
+              message: true,
+              rate: true,
+            },
+          }),
+          db.blog.findMany({
+            orderBy: { id: 'desc' },
+            select: {
+              id: true,
+              thumbnail: true,
+              title: true,
+              slug: true,
+              description: true,
+              publishedAt: true,
+              published: true,
+              author: { select: { username: true } },
+            },
+          }),
+        ])
 
       const mappedBlogs = blogs
         .filter((blog) => blog.published)
         .map((blog) => ({
           ...blog,
           publishedAt: dateFormat(new Date(blog.publishedAt!)),
-        }));
+        }))
 
       res.status(200).json({
         clients,
@@ -79,28 +80,28 @@ class ApiController {
         portfolios,
         testimonies,
         blogs: mappedBlogs,
-      });
+      })
     } catch (error: any) {
       res.status(500).json({
         message: error.message,
-      });
+      })
     }
   }
 
   static async getImage(req: Request, res: Response) {
     try {
-      const { filename } = req.params;
-      const image = path.join(__dirname, `../public/images/${filename}`);
+      const { filename } = req.params
+      const image = path.join(__dirname, `../public/images/${filename}`)
 
       access(image, constants.F_OK, (err) => {
         if (err) {
-          res.status(404).json({ message: 'Image not found' });
+          res.status(404).json({ message: 'Image not found' })
         } else {
-          res.status(200).sendFile(image);
+          res.status(200).sendFile(image)
         }
-      });
+      })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
@@ -110,19 +111,19 @@ class ApiController {
         include: {
           portfolio: true,
         },
-      });
+      })
 
-      res.status(200).json({ services });
+      res.status(200).json({ services })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
   static async blogs(req: Request, res: Response) {
     try {
-      const { page } = req.body;
-      const take = 5;
-      const skip = (page - 1) * take;
+      const { page } = req.body
+      const take = 5
+      const skip = (page - 1) * take
 
       const [blogs, nextBlogsData] = await Promise.all([
         db.blog.findMany({
@@ -160,22 +161,25 @@ class ApiController {
             author: { select: { username: true } },
           },
         }),
-      ]);
+      ])
 
       const mappedBlogs = blogs.map((blog) => ({
         ...blog,
         publishedAt: dateFormat(new Date(blog.publishedAt!)),
-      }));
+      }))
 
-      res.status(200).json({ blogs: mappedBlogs, hasMore: nextBlogsData.length > 0 });
+      res.status(200).json({
+        blogs: mappedBlogs,
+        hasMore: nextBlogsData.length > 0,
+      })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
   static async getBlog(req: Request, res: Response) {
     try {
-      const slug: string = String(req.params.slug);
+      const slug: string = String(req.params.slug)
       const blog = await db.blog.findFirst({
         where: { slug },
         select: {
@@ -190,37 +194,37 @@ class ApiController {
           published: true,
           author: { select: { username: true } },
         },
-      });
+      })
 
-      if (!blog) return res.status(404).json({ message: 'Blog not found' });
+      if (!blog) return res.status(404).json({ message: 'Blog not found' })
       const mappedBlog = {
         ...blog,
         publishedAt: dateFormat(new Date(blog.publishedAt!)),
-      };
+      }
 
-      res.status(200).json({ blog: mappedBlog });
+      res.status(200).json({ blog: mappedBlog })
     } catch (err: any) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: err.message })
     }
   }
 
   static async faqs(req: Request, res: Response) {
     try {
-      const faqs = await db.faq.findMany();
-      res.status(200).json({ faqs });
+      const faqs = await db.faq.findMany()
+      res.status(200).json({ faqs })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
   static async portfolios(req: Request, res: Response) {
     try {
-      const page: number = parseInt(req.body.page as string, 10);
-      const serviceId: string = String(req.body.serviceId);
-      const take: number = 5;
-      const skip: number = (page - 1) * take;
-      let portfolios: Portfolio[];
-      let nextPortfoliosData: Portfolio[];
+      const page: number = parseInt(req.body.page as string, 10)
+      const serviceId: string = String(req.body.serviceId)
+      const take: number = 5
+      const skip: number = (page - 1) * take
+      let portfolios: Portfolio[]
+      let nextPortfoliosData: Portfolio[]
 
       if (serviceId !== '000000-0000-0000-0000-000000000000') {
         portfolios = await db.portfolio.findMany({
@@ -239,7 +243,7 @@ class ApiController {
               },
             },
           },
-        });
+        })
       } else {
         portfolios = await db.portfolio.findMany({
           skip,
@@ -256,7 +260,7 @@ class ApiController {
               },
             },
           },
-        });
+        })
       }
 
       if (serviceId !== '000000-0000-0000-0000-000000000000') {
@@ -281,7 +285,7 @@ class ApiController {
               },
             },
           },
-        });
+        })
       } else {
         nextPortfoliosData = await db.portfolio.findMany({
           take,
@@ -301,26 +305,26 @@ class ApiController {
               },
             },
           },
-        });
+        })
       }
 
       const mappedPortfolios = portfolios
         .filter((portfolio) => {
           if (serviceId !== '000000-0000-0000-0000-000000000000')
-            return portfolio.service.id === serviceId;
-          return true;
+            return portfolio.service.id === serviceId
+          return true
         })
         .map((portfolio) => ({
           ...portfolio,
           orientation: portfolio.orientation.toLowerCase(),
-        }));
+        }))
 
       res.status(200).json({
         portfolios: mappedPortfolios,
         hasMore: nextPortfoliosData.length > 0,
-      });
+      })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
@@ -346,11 +350,11 @@ class ApiController {
             },
           },
         },
-      });
+      })
 
-      res.status(200).json({ teams });
+      res.status(200).json({ teams })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
@@ -358,26 +362,29 @@ class ApiController {
     try {
       const subscribers = await db.subscriber.findMany({
         select: { email: true },
-      });
+      })
 
-      res.status(200).json({ subscribers });
+      res.status(200).json({ subscribers })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 
   static async addSubscriber(req: Request, res: Response) {
     try {
-      const email: string = req.body.email;
-      const subscriber = await db.subscriber.findFirst({ where: { email } });
-      if (subscriber) return res.status(400).json({ message: 'Email already subscribed' });
+      const email: string = req.body.email
+      const subscriber = await db.subscriber.findFirst({
+        where: { email },
+      })
+      if (subscriber)
+        return res.status(400).json({ message: 'Email already subscribed' })
 
-      await db.subscriber.create({ data: { email } });
-      res.status(201).json({ message: 'Subscribed successfully' });
+      await db.subscriber.create({ data: { email } })
+      res.status(201).json({ message: 'Subscribed successfully' })
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message })
     }
   }
 }
 
-export default ApiController;
+export default ApiController

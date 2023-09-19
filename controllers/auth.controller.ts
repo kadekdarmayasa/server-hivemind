@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import '../types/express.session';
-import { db } from '../lib/server.db';
+import { Request, Response } from 'express'
+import bcrypt from 'bcryptjs'
+import '../types/express.session'
+import { db } from '../lib/server.db'
 
 class AuthController {
   static async viewSignin(req: Request, res: Response) {
     if (req.session.user) {
-      return res.redirect('/user');
+      return res.redirect('/dashboard')
     }
 
     res.render('auth/signin', {
@@ -15,40 +15,40 @@ class AuthController {
         type: req.flash('alertType'),
         message: req.flash('alertMessage'),
       },
-    });
+    })
   }
 
   static async actionSignin(req: Request, res: Response) {
-    const { username, password } = req.body;
+    const { username, password } = req.body
     const user = await db.user.findFirst({
       where: { username },
-    });
+    })
 
     if (!user) {
-      req.flash('alertType', 'danger');
-      req.flash('alertMessage', 'User could not be found');
-      return res.redirect('/auth/signin');
+      req.flash('alertType', 'danger')
+      req.flash('alertMessage', 'User could not be found')
+      return res.redirect('/auth/signin')
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await bcrypt.compare(password, user.password)
 
     if (!isPasswordMatch) {
-      req.flash('alertType', 'danger');
-      req.flash('alertMessage', 'Password is incorrect');
-      return res.redirect('/auth/signin');
+      req.flash('alertType', 'danger')
+      req.flash('alertMessage', 'Password is incorrect')
+      return res.redirect('/auth/signin')
     }
 
     req.session.user = {
       id: user.id,
       roleId: user.roleId,
-    };
+    }
 
-    res.redirect('/user');
+    res.redirect('/dashboard')
   }
 
   static async actionSignout(req: Request, res: Response) {
-    req.session.destroy(() => res.redirect('/auth/signin'));
+    req.session.destroy(() => res.redirect('/auth/signin'))
   }
 }
 
-export default AuthController;
+export default AuthController

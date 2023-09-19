@@ -41,7 +41,7 @@ Before going forward, please make sure that you have `nodemon` and `nodejs` inst
 5. Start development server and type `localhost:8000` on your favorite browser
 
 ```
-  > npm run dev
+  > npm run start:dev
 ```
 
 6. [Continue setup frontend](https://github.com/kadekdarmayasa/hivemind)

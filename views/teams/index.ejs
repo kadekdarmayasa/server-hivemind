@@ -1,0 +1,139 @@
+<%- include('../templates/header.ejs') %>
+
+  <div id="wrapper">
+    <%- include('../templates/sidebar.ejs') %>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+          <%- include('../templates/top-bar.ejs') %>
+            <div class="container-fluid">
+              <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Teams</h1>
+
+                <% if(user.role.name==='Admin' ) { %>
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTeam">
+                    Add Team
+                  </button>
+                  <% } %>
+              </div>
+
+              <%- include('../templates/alert.ejs') %>
+
+                <div class="row">
+                  <div class="card shadow mb-4 col-md-12">
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Username</th>
+                              <th>Role</th>
+                              <th>Email</th>
+                              <th>Linkedin</th>
+                              <% if(user.role.name==='Admin' ) { %>
+                                <th>Actions</th>
+                                <% } %>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% teams.forEach((team)=> { %>
+                              <tr>
+                                <td>
+                                  <%= team.name %>
+                                </td>
+                                <td>
+                                  <%= team.username %>
+                                </td>
+                                <td>
+                                  <%= team.role.name %>
+                                </td>
+                                <td>
+                                  <%= team.email %>
+                                </td>
+                                <td>
+                                  <%= team.linkedin %>
+                                </td>
+                                <% if(user.role.name==='Admin' ) { %>
+                                  <td>
+                                    <form action="/teams/<%= team.id %>?_method=DELETE" method="post">
+                                      <button type="submit" title="Delete Team" data-toggle-tooltip
+                                        class="btn btn-danger btn-circle btn-sm delete-btn mt-2">
+                                        <i class="fas fa-trash"></i>
+                                      </button>
+                                      <button type="button" data-toggle="modal" data-toggle-tooltip title="View Photo"
+                                        data-target="#fotoModal"
+                                        class="btn btn-primary btn-circle btn-sm show-photo-btn mt-2"
+                                        data-photo="<%= team.publicPhoto %>" data-team-name="<%= team.name %>">
+                                        <i class="fas fa-image"></i>
+                                      </button>
+                                      <button type="button" data-toggle="modal" data-target="#updateTeam"
+                                        title="update Team" data-toggle-tooltip
+                                        class="btn btn-success btn-circle btn-sm update-btn mt-2"
+                                        data-team-id="<%= team.id %>" data-team-name="<%= team.name %>"
+                                        data-team-username="<%= team.username %>" data-team-email="<%= team.email %>"
+                                        data-team-linkedin="<%= team.linkedin %>" data-team-role="<%= team.roleId %>">
+                                        <i class="fas fa-edit"></i>
+                                      </button>
+                                    </form>
+                                  </td>
+                                  <% } %>
+                              </tr>
+                              <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <%- include('./add-modal.ejs') %><%- include('./update-modal.ejs') %><%- include('./foto-modal.ejs') %>
+            </div>
+        </div>
+      </div>
+  </div>
+
+  <%- include('../templates/logout-modal.ejs') %> <%- include('../templates/scripts.ejs') %>
+      <script>
+        $('.delete-btn')
+          .toArray()
+          .forEach(function (deleteButton) {
+            $(deleteButton).on('click', function (event) {
+              const confirmation = confirm('Are you sure you want to delete this team?');
+              if (confirmation) $(this).submit();
+              else event.preventDefault();
+            });
+          });
+
+        $('.update-btn')
+          .toArray()
+          .forEach(function (updateButton) {
+            $(updateButton).on('click', function (event) {
+              const teamId = $(this).data('team-id');
+              const updateForm = document.getElementById('updateForm')
+              updateForm.setAttribute('action', `/teams/${teamId}?_method=PUT`)
+
+              const teamName = $(this).data('team-name');
+              const teamUsername = $(this).data('team-username');
+              const teamEmail = $(this).data('team-email');
+              const teamLinkedin = $(this).data('team-linkedin');
+              const teamRole = $(this).data('team-role');
+
+              $('#updateId').val(teamId);
+              $('#updateName').val(teamName);
+              $('#updateUsername').val(teamUsername);
+              $('#updateEmail').val(teamEmail);
+              $('#updateLinkedin').val(teamLinkedin);
+              $('#updateRoleId').val(teamRole);
+            });
+          });
+
+        $('.show-photo-btn')
+          .toArray()
+          .forEach(function (showPhotoButton) {
+            $(showPhotoButton).on('click', function () {
+              const photo = $(this).data('photo');
+              const name = $(this).data('team-name');
+              $('#publicPhotoPreview').attr('src', `/public/images/${photo}`).attr('alt', `${name}`);
+            });
+          });
+      </script>

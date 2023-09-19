@@ -11,15 +11,15 @@ const MONTHS: string[] = [
   'Oct',
   'Nov',
   'Dec',
-];
-const DAYS: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+]
+const DAYS: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 function dateFormat(date: Date): string {
-  const day = DAYS[date.getDay()];
-  const month = MONTHS[date.getMonth()];
-  const year = date.getFullYear();
+  const day = DAYS[date.getDay()]
+  const month = MONTHS[date.getMonth()]
+  const year = date.getFullYear()
 
-  return `${day}, ${date.getDate()} ${month} ${year}`;
+  return `${day}, ${date.getDate()} ${month} ${year}`
 }
 
-export default dateFormat;
+export default dateFormat

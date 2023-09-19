@@ -3,9 +3,9 @@ const createEmailTemplate = ({
   blogDescription,
   blogThumbnail,
 }: {
-  blogTitle: string;
-  blogDescription: string;
-  blogThumbnail: string;
+  blogTitle: string
+  blogDescription: string
+  blogThumbnail: string
 }) => `
 <!DOCTYPE html>
 <html>
@@ -50,6 +50,6 @@ const createEmailTemplate = ({
     </div>
   </body>
 </html>
-`;
+`
 
-export { createEmailTemplate };
+export { createEmailTemplate }

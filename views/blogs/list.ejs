@@ -1,0 +1,54 @@
+<div class="table-responsive">
+  <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Thumbnail</th>
+        <th>Title</th>
+        <th>Slug</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% blogs.forEach((blog)=> { %>
+        <tr>
+          <td>
+            <img src="/public/images/<%= blog.thumbnail  %>" alt="<%= blog.title %>" style="width: 200px" />
+          </td>
+          <td>
+            <%= blog.title %>
+          </td>
+          <td>
+            <%= blog.slug %>
+          </td>
+          <td>
+            <% if(blog.published) { %>
+              <span class="badge badge-success">Published</span>
+              <% } else { %>
+                <span class="badge badge-danger">Draft</span>
+                <% } %>
+          </td>
+          <td>
+            <form action="/blogs/<%= blog.id %>?_method=DELETE" method="post">
+              <button type="submit" data-toggle-tooltip title="Delete Blog"
+                class="btn btn-danger btn-circle btn-sm delete-btn">
+                <i class="fas fa-trash"></i>
+              </button>
+              <a data-toggle-tooltip title="Update Blog" href="/blogs/update/<%= blog.id %>"
+                class="btn btn-success btn-circle btn-sm update-btn">
+                <i class="fas fa-edit"></i>
+              </a>
+            </form>
+
+            <% if(!blog.published && user.role.name==='Admin' ) { %>
+              <form action="/blogs/publish?_method=PUT" method="post" class="mt-2">
+                <input type="hidden" id="id" name="id" value="<%= blog.id %>" />
+                <button type="submit" class="btn btn-primary btn-sm">Publish</button>
+              </form>
+              <% } %>
+          </td>
+        </tr>
+        <% }) %>
+    </tbody>
+  </table>
+</div>

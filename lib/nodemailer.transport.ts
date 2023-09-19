@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
   host: 'smtp-mail.outlook.com',
@@ -7,6 +7,6 @@ const transporter = nodemailer.createTransport({
     user: 'hivemindindonesia@outlook.com',
     pass: 'adminhivemind123#&561',
   },
-});
+})
 
-export { transporter };
+export { transporter }

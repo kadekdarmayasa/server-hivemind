@@ -1,0 +1,242 @@
+<%- include('../templates/header.ejs') %>
+
+  <div id="wrapper">
+    <%- include('../templates/sidebar.ejs') %>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+          <%- include('../templates/top-bar.ejs') %>
+            <div class="container-fluid">
+              <%- include('../templates/alert.ejs') %>
+
+                <div class="card-body bg-white row justify-content-center" style="max-width: 800px; margin: auto">
+                  <div class="col-md-12">
+                    <h1 class="h4 mb-0 text-gray-800">User Profile</h1>
+                    <hr />
+
+                    <div class="position-relative my-4" style="width: 160px; height: 160px">
+                      <img src="/public/images/<%= user.photo %>" alt="User Profile" class="mb-4 rounded-circle"
+                        style="width: 160px; height: 160px" />
+                      <input type="file" class="form-control" id="photo" accept="image/*" style="display: none" />
+                      <button type="button" id="fileSelect"
+                        class="btn btn-light btn-circle position-absolute border border-primary"
+                        style="bottom: 10px; right: 10px; width: 50px; height: 50px">
+                        <i class="fa fa-edit text-primary"></i>
+                      </button>
+                    </div>
+
+                    <form action="/user/profile?_method=PUT" method="post">
+                      <div class="form-group" style="margin-top: -10px">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter name..."
+                          required value="<%= user.name %>" />
+                      </div>
+                      <div class="form-group">
+                        <label for="name">Username</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                          placeholder="Enter username..." required value="<%= user.username %>" />
+                      </div>
+                      <div class="form-group">
+                        <label for="roleId">Role</label>
+                        <input type="text" name="roleId" id="roleId" class="form-control" required disabled
+                          value="<%= user.role %>" />
+                      </div>
+                      <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                          placeholder="Enter email address..." required value="<%= user.email %>" />
+                      </div>
+                      <div class="form-group">
+                        <label for="linkedin">Linkedin</label>
+                        <input type="text" class="form-control" id="linkedin" name="linkedin"
+                          placeholder="Enter linkedin username..." required value="<%= user.linkedin %>" />
+                      </div>
+                      <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                  </div>
+                </div>
+
+                <div class="card-body bg-white row justify-content-center mt-5" style="max-width: 800px; margin: auto">
+                  <div class="col-md-12">
+                    <h2 class="h4 mb-0 text-gray-800">Update Password</h2>
+                    <hr />
+
+                    <form action="/user/update-password?_method=PUT" method="post" id="update-password-form">
+                      <div class="form-group mt-4">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" class="form-control" id="current-password" name="currentPassword"
+                          minlength="8" placeholder="Enter current password..." required />
+                        <small>
+                          <span class="text-danger" id="error-current-password"></span>
+                        </small>
+                      </div>
+                      <div class="form-group mt-4">
+                        <label for="new-password">New Password</label>
+                        <input type="password" class="form-control" id="new-password" name="newPassword"
+                          pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" minlength="8"
+                          placeholder="Enter new password..." required />
+                        <ul>
+                          <li>Password must at least 8 character length</li>
+                          <li>Password should contain 1 digit</li>
+                          <li>Password should contain 1 uppercase letter</li>
+                        </ul>
+                      </div>
+                      <div class="form-group mt-4">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm-password" name="confirmPassword"
+                          placeholder="Enter new password..." required />
+                        <small class="text-danger" id="message"></small>
+                      </div>
+                      <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('./cropper-modal.ejs') %>
+      </div>
+
+      <%- include('../templates/logout-modal.ejs') %> <%- include('../templates/scripts.ejs') %>
+          <script>
+            $('#fileSelect').on('click', function () {
+              $('#photo').click();
+            });
+
+            const cropperModal = $('#cropperModal');
+            const editPhoto = document.getElementById('edit-photo');
+            let reader, cropper;
+
+            $('#photo').on('change', function (e) {
+              const file = e.target.files[0];
+              const done = (url) => {
+                editPhoto.src = url;
+                cropperModal.modal('show');
+              };
+
+              if (file) done(URL.createObjectURL(file));
+            });
+
+            cropperModal
+              .on('shown.bs.modal', () => {
+                cropper = new Cropper(editPhoto, {
+                  aspectRatio: 1,
+                  viewMode: 3,
+                  moveable: true,
+                  preview: '#preview',
+                });
+              })
+              .on('hidden.bs.modal', () => {
+                cropper.destroy();
+                cropper = null;
+              });
+
+            $('#crop').on('click', function () {
+              canvas = cropper.getCroppedCanvas({
+                width: 160,
+                height: 160,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+              });
+
+              canvas.toBlob(function (blob) {
+                const file = new File([blob], 'profile.png', { type: 'image/png' });
+                const formData = new FormData();
+                formData.append('photo', file);
+
+                $.ajax('/user/update-photo?_method=PUT', {
+                  method: 'POST',
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success: function (data) {
+                    cropperModal.modal('hide');
+                    window.scrollTo(0, 0);
+
+                    Swal.fire({
+                      icon: 'success',
+                      title: data.message,
+                      toast: true,
+                      position: 'top-end',
+                      showConfirmButton: false,
+                      timer: 3000,
+                      timerProgressBar: true,
+                      didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                      },
+                    }).then(() => location.reload());
+                  },
+                  error: function (err) {
+                    Swal.fire({
+                      icon: 'error',
+                      title: err.responseJSON.message,
+                      toast: true,
+                      position: 'top-end',
+                      showConfirmButton: false,
+                      timer: 3000,
+                      timerProgressBar: true,
+                      didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                      },
+                    }).then(() => location.reload());
+                  },
+                });
+              });
+            });
+          </script>
+
+          <script>
+            $('#update-password-form').on('submit', function (e) {
+              e.preventDefault();
+              $('#message').text('');
+              $('#error-current-password').text('');
+
+              const id = $('#id-update-password').val();
+              const currentPassword = $('#current-password').val();
+              const newPassword = $('#new-password').val();
+              const confirmPassword = $('#confirm-password').val();
+
+              if (newPassword !== confirmPassword) {
+                $('#message').text('Password does not match');
+                return;
+              }
+
+              $.ajax('/user/update-password?_method=PUT', {
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id, currentPassword, newPassword }),
+                success: function (data) {
+                  window.scrollTo(0, 0);
+                  $('#current-password').val('');
+                  $('#new-password').val('');
+                  $('#confirm-password').val('');
+
+                  Swal.fire({
+                    icon: 'success',
+                    title: data.message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                      toast.addEventListener('mouseenter', Swal.stopTimer);
+                      toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    },
+                  });
+                },
+                error: function (err) {
+                  $('#error-current-password').text(err.responseJSON.message);
+                  $('#current-password').val('');
+                  $('#new-password').val('');
+                  $('#confirm-password').val('');
+
+                  setTimeout(() => {
+                    $('#error-current-password').text('');
+                  }, 3000);
+                },
+              });
+            });
+          </script>
+  </div>

@@ -8,146 +8,153 @@
   <hr class="sidebar-divider my-0" />
 
   <!-- Nav Item - Dashboard -->
-  <% if(view == "dashboard") { %>
-  <li class="nav-item active"><% } else { %></li>
+  <% if(view=="dashboard" ) { %>
+    <li class="nav-item active">
+      <% } else { %>
+    </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user">
-      <i class="fa-solid fa-tachometer-alt"></i>
-      <span>Dashboard</span>
-    </a>
-  </li>
+    <li class="nav-item">
+      <% } %>
+        <a class="nav-link" href="/dashboard">
+          <i class="fa-solid fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+    </li>
 
-  <!-- Divider -->
-  <hr class="sidebar-divider" />
+    <!-- Divider -->
+    <hr class="sidebar-divider" />
 
-  <!-- Heading -->
-  <div class="sidebar-heading">Company</div>
+    <!-- Heading -->
+    <div class="sidebar-heading">Company</div>
 
-  <!-- Nav Item - Teams -->
-  <% if(view == "teams") { %>
-  <li class="nav-item active"><% } else { %></li>
+    <!-- Nav Item - Teams -->
+    <% if(view=="teams" ) { %>
+      <li class="nav-item active">
+        <% } else { %>
+      </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a
-      class="nav-link collapsed"
-      href="javascript:void(0);"
-      data-toggle="collapse"
-      data-target="#collapseOne"
-      aria-expanded="true"
-      aria-controls="collapseOne"
-    >
-      <i class="fa-solid fa-user-group"></i>
-      <span>Teams</span>
-    </a>
-    <div
-      id="collapseOne"
-      class="collapse"
-      aria-labelledby="headingTwo"
-      data-parent="#accordionSidebar"
-    >
-      <div class="bg-white py-2 collapse-inner rounded">
-        <a class="collapse-item" href="/user/teams">People</a>
-        <a class="collapse-item" href="/user/roles">Roles</a>
-      </div>
-    </div>
-  </li>
+      <li class="nav-item">
+        <% } %>
+          <a class="nav-link collapsed" href="javascript:void(0);" data-toggle="collapse" data-target="#collapseOne"
+            aria-expanded="true" aria-controls="collapseOne">
+            <i class="fa-solid fa-user-group"></i>
+            <span>Teams</span>
+          </a>
+          <div id="collapseOne" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="/teams">People</a>
+              <a class="collapse-item" href="/roles">Roles</a>
+            </div>
+          </div>
+      </li>
 
-  <!-- Nav Item - Service  -->
-  <% if(view == "service") { %>
-  <li class="nav-item active"><% } else { %></li>
+      <!-- Nav Item - Service  -->
+      <% if(view=="service" ) { %>
+        <li class="nav-item active">
+          <% } else { %>
+        </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/services">
-      <i class="fa-solid fa-gear"></i>
-      <span>Service</span>
-    </a>
-  </li>
+        <li class="nav-item">
+          <% } %>
+            <a class="nav-link" href="/services">
+              <i class="fa-solid fa-gear"></i>
+              <span>Service</span>
+            </a>
+        </li>
 
-  <!-- Nav Item - Portfolio  -->
-  <% if(view == "portfolio") { %>
-  <li class="nav-item active"><% } else { %></li>
+        <!-- Nav Item - Portfolio  -->
+        <% if(view=="portfolio" ) { %>
+          <li class="nav-item active">
+            <% } else { %>
+          </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/portfolios">
-      <i class="fa-solid fa-folder-closed"></i>
-      <span>Portfolio</span>
-    </a>
-  </li>
+          <li class="nav-item">
+            <% } %>
+              <a class="nav-link" href="/portfolios">
+                <i class="fa-solid fa-folder-closed"></i>
+                <span>Portfolio</span>
+              </a>
+          </li>
 
-  <hr class="sidebar-divider" />
+          <hr class="sidebar-divider" />
 
-  <div class="sidebar-heading">Others</div>
+          <div class="sidebar-heading">Others</div>
 
-  <!-- Nav Item - Clients  -->
-  <% if(view == "client") { %>
-  <li class="nav-item active"><% } else { %></li>
+          <!-- Nav Item - Clients  -->
+          <% if(view=="client" ) { %>
+            <li class="nav-item active">
+              <% } else { %>
+            </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/clients">
-      <i class="fa-solid fa-briefcase"></i>
-      <span>Clients</span>
-    </a>
-  </li>
+            <li class="nav-item">
+              <% } %>
+                <a class="nav-link" href="/clients">
+                  <i class="fa-solid fa-briefcase"></i>
+                  <span>Clients</span>
+                </a>
+            </li>
 
-  <!-- Nav Item - Blogs  -->
-  <% if(view == "blog") { %>
-  <li class="nav-item active"><% } else { %></li>
+            <!-- Nav Item - Blogs  -->
+            <% if(view=="blog" ) { %>
+              <li class="nav-item active">
+                <% } else { %>
+              </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/blogs">
-      <i class="fa-solid fa-file-pen"></i>
-      <span>Blogs</span>
-    </a>
-  </li>
+              <li class="nav-item">
+                <% } %>
+                  <a class="nav-link" href="/blogs">
+                    <i class="fa-solid fa-file-pen"></i>
+                    <span>Blogs</span>
+                  </a>
+              </li>
 
-  <!-- Nav Item - Testimony  -->
-  <% if(view == "testimony") { %>
-  <li class="nav-item active"><% } else { %></li>
+              <!-- Nav Item - Testimony  -->
+              <% if(view=="testimony" ) { %>
+                <li class="nav-item active">
+                  <% } else { %>
+                </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/testimonies">
-      <i class="fa-solid fa-comments"></i>
-      <span>Testimony</span>
-    </a>
-  </li>
+                <li class="nav-item">
+                  <% } %>
+                    <a class="nav-link" href="/testimonies">
+                      <i class="fa-solid fa-comments"></i>
+                      <span>Testimony</span>
+                    </a>
+                </li>
 
-  <!-- Nav Item - FAQs -->
-  <% if(view == "faq") { %>
-  <li class="nav-item active"><% } else { %></li>
+                <!-- Nav Item - FAQs -->
+                <% if(view=="faq" ) { %>
+                  <li class="nav-item active">
+                    <% } else { %>
+                  </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/faqs">
-      <i class="fa-solid fa-circle-question"></i>
-      <span>FAQs</span>
-    </a>
-  </li>
+                  <li class="nav-item">
+                    <% } %>
+                      <a class="nav-link" href="/faqs">
+                        <i class="fa-solid fa-circle-question"></i>
+                        <span>FAQs</span>
+                      </a>
+                  </li>
 
-  <!-- Nav Item - Subcribers -->
-  <% if(view == "subscriber") { %>
-  <li class="nav-item active"><% } else { %></li>
+                  <!-- Nav Item - Subcribers -->
+                  <% if(view=="subscriber" ) { %>
+                    <li class="nav-item active">
+                      <% } else { %>
+                    </li>
 
-  <li class="nav-item">
-    <% } %>
-    <a class="nav-link" href="/user/subscribers">
-      <i class="fa-solid fa-bell"></i>
-      <span>Subcribers</span>
-    </a>
-  </li>
+                    <li class="nav-item">
+                      <% } %>
+                        <a class="nav-link" href="/subscribers">
+                          <i class="fa-solid fa-bell"></i>
+                          <span>Subcribers</span>
+                        </a>
+                    </li>
 
-  <!-- Divider -->
-  <hr class="sidebar-divider d-none d-md-block" />
+                    <!-- Divider -->
+                    <hr class="sidebar-divider d-none d-md-block" />
 
-  <!-- Sidebar Toggler (Sidebar) -->
-  <div class="text-center d-none d-md-inline">
-    <button class="rounded-circle border-0" id="sidebarToggle"></button>
-  </div>
+                    <!-- Sidebar Toggler (Sidebar) -->
+                    <div class="text-center d-none d-md-inline">
+                      <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                    </div>
 </ul>

@@ -1,0 +1,22 @@
+<div class="modal fade" id="updateRole" tabindex="-1" aria-labelledby="updateRoleLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateRoleLabel">Update Team Role</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="updateForm">
+          <div class="form-group">
+            <label for="roleName">Role Name</label>
+            <input type="text" name="roleName" id="updateRoleName" class="form-control"
+              placeholder="e.g. Web Developer, Graphic Designer, etc" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

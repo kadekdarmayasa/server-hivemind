@@ -1,0 +1,52 @@
+<div class="modal fade" id="updateTeam" tabindex="-1" aria-labelledby="updateTeamLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateTeamLabel">Update Team</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm" method="post" enctype="multipart/form-data">
+          <div class="form-group" style="margin-top: -10px">
+            <label for="updatePhoto">Photo</label>
+            <input type="file" class="form-control" id="updatePhoto" name="teamPhoto" accept="image/*"
+              placeholder="Select a team photo..." />
+          </div>
+          <div class="form-group" style="margin-top: -10px">
+            <label for="updateName">Name</label>
+            <input type="text" class="form-control" id="updateName" name="name" placeholder="Enter name..." required />
+          </div>
+          <div class="form-group">
+            <label for="updateUsername">Username</label>
+            <input type="text" class="form-control" id="updateUsername" name="username" placeholder="Enter username..."
+              required />
+          </div>
+          <div class="form-group">
+            <label for="updateRoleId">Role</label>
+            <select name="roleId" id="updateRoleId" class="form-control" required>
+              <option value="">---</option>
+              <% roles.forEach((role)=> { %>
+                <option value="<%= role.id %>">
+                  <%= role.name %>
+                </option>
+                <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="updateEmail">Email</label>
+            <input type="email" class="form-control" id="updateEmail" name="email" placeholder="Enter email address..."
+              required />
+          </div>
+          <div class="form-group">
+            <label for="updateLinkedin">Linkedin</label>
+            <input type="text" class="form-control" id="updateLinkedin" name="linkedin"
+              placeholder="Enter linkedin username..." required />
+          </div>
+          <button type="submit" class="btn btn-primary">Update Team</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
