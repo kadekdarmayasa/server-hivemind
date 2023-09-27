@@ -75,15 +75,21 @@ class ApiController {
         }))
 
       res.status(200).json({
-        clients,
-        services,
-        portfolios,
-        testimonies,
-        blogs: mappedBlogs,
+        status: 'success',
+        data: {
+          homepage: {
+            clients,
+            services,
+            portfolios,
+            testimonies,
+            blogs: mappedBlogs,
+          },
+        },
       })
-    } catch (error: any) {
+    } catch (err: any) {
       res.status(500).json({
-        message: error.message,
+        status: 'failed',
+        message: err.message,
       })
     }
   }
@@ -95,13 +101,19 @@ class ApiController {
 
       access(image, constants.F_OK, (err) => {
         if (err) {
-          res.status(404).json({ message: 'Image not found' })
+          res.status(404).json({
+            status: 'failed',
+            message: 'Image not found',
+          })
         } else {
           res.status(200).sendFile(image)
         }
       })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -113,9 +125,15 @@ class ApiController {
         },
       })
 
-      res.status(200).json({ services })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+      res.status(200).json({
+        status: 'success',
+        data: { services },
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -169,11 +187,17 @@ class ApiController {
       }))
 
       res.status(200).json({
-        blogs: mappedBlogs,
-        hasMore: nextBlogsData.length > 0,
+        status: 'success',
+        data: {
+          blogs: mappedBlogs,
+          hasMore: nextBlogsData.length > 0,
+        },
       })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -196,24 +220,43 @@ class ApiController {
         },
       })
 
-      if (!blog) return res.status(404).json({ message: 'Blog not found' })
+      if (!blog) {
+        return res
+          .status(404)
+          .json({ status: 'failed', message: 'Blog not found' })
+      }
+
       const mappedBlog = {
         ...blog,
         publishedAt: dateFormat(new Date(blog.publishedAt!)),
       }
 
-      res.status(200).json({ blog: mappedBlog })
+      res.status(200).json({
+        status: 'success',
+        data: {
+          blog: mappedBlog,
+        },
+      })
     } catch (err: any) {
-      res.status(500).json({ message: err.message })
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
   static async faqs(req: Request, res: Response) {
     try {
       const faqs = await db.faq.findMany()
-      res.status(200).json({ faqs })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+      res.status(200).json({
+        status: 'success',
+        data: { faqs },
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -320,11 +363,17 @@ class ApiController {
         }))
 
       res.status(200).json({
-        portfolios: mappedPortfolios,
-        hasMore: nextPortfoliosData.length > 0,
+        status: 'success',
+        data: {
+          portfolios: mappedPortfolios,
+          hasMore: nextPortfoliosData.length > 0,
+        },
       })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -352,9 +401,15 @@ class ApiController {
         },
       })
 
-      res.status(200).json({ teams })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+      res.status(200).json({
+        status: 'success',
+        data: { teams },
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -364,9 +419,15 @@ class ApiController {
         select: { email: true },
       })
 
-      res.status(200).json({ subscribers })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+      res.status(200).json({
+        status: 'success',
+        data: { subscribers },
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 
@@ -376,13 +437,24 @@ class ApiController {
       const subscriber = await db.subscriber.findFirst({
         where: { email },
       })
-      if (subscriber)
-        return res.status(400).json({ message: 'Email already subscribed' })
+
+      if (subscriber) {
+        return res.status(400).json({
+          status: 'failed',
+          message: 'Email already subscribed',
+        })
+      }
 
       await db.subscriber.create({ data: { email } })
-      res.status(201).json({ message: 'Subscribed successfully' })
-    } catch (error: any) {
-      res.status(500).json({ message: error.message })
+      res.status(201).json({
+        status: 'success',
+        message: 'Subscribed successfully',
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        status: 'failed',
+        message: err.message,
+      })
     }
   }
 }

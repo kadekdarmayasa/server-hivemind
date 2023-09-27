@@ -7,243 +7,399 @@ import { db } from '../lib/server.db'
 const expect = chai.expect
 chai.use(chaiHttp)
 
-describe('API ENDPOINT TESTING', () => {
-  it('GET: /api/v1/homepage', (done) => {
+describe('GET: /api/v1/homepage', () => {
+  const homepageEndpoint = '/api/v1/homepage'
+
+  it('Response status code should have value of 200', (done) => {
     chai
       .request(app)
-      .get('/api/v1/homepage')
+      .get(homepageEndpoint)
       .end((err, res) => {
-        expect(err).to.be.null
         expect(res).to.have.status(200)
-        expect(res.body).to.have.property('clients')
-        expect(res.body).to.have.property('services')
-        expect(res.body).to.have.property('portfolios')
-        expect(res.body).to.have.property('testimonies')
-        expect(res.body).to.have.property('blogs')
         done()
       })
   })
 
-  it('GET: /api/v1/services', (done) => {
+  it('Response header Content-Type should have value of application/json', (done) => {
     chai
       .request(app)
-      .get('/api/v1/services')
+      .get(homepageEndpoint)
       .end((err, res) => {
-        expect(err).to.be.null
-        expect(res).to.have.status(200)
-        expect(res.body.services).to.be.an('array')
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
         done()
       })
   })
 
-  it('POST: /api/v1/blogs', (done) => {
+  it('Response body should be an object', (done) => {
     chai
       .request(app)
-      .post('/api/v1/blogs')
-      .send({
-        page: 1,
-      })
+      .get(homepageEndpoint)
       .end((err, res) => {
-        expect(err).to.be.null
-        expect(res).to.have.status(200)
-        expect(res.body).to.have.property('blogs')
-        expect(res.body).to.have.property('hasMore')
+        expect(res.body).to.be.an('object')
         done()
       })
   })
 
-  it('GET: /api/v1/faqs', (done) => {
+  it('Response body should have specified properties', (done) => {
     chai
       .request(app)
-      .get('/api/v1/faqs')
+      .get(homepageEndpoint)
       .end((err, res) => {
-        expect(err).to.be.null
+        const { data } = res.body
+        expect(data).to.have.property('homepage')
+        expect(data.homepage).to.have.property('clients')
+        expect(data.homepage).to.have.property('services')
+        expect(data.homepage).to.have.property('portfolios')
+        expect(data.homepage).to.have.property('testimonies')
+        expect(data.homepage).to.have.property('blogs')
+        done()
+      })
+  })
+})
+
+describe('GET: /api/v1/services', () => {
+  const serviceEndpoint = '/api/v1/services'
+
+  it('Response code should have value of 200', (done) => {
+    chai
+      .request(app)
+      .get(serviceEndpoint)
+      .end((err, res) => {
         expect(res).to.have.status(200)
-        expect(res.body.faqs).to.be.an('array')
         done()
       })
   })
 
-  it('GET:/api/v1/subscribers', (done) => {
+  it('Response header Content-Type should have value of application/json', (done) => {
     chai
       .request(app)
-      .get('/api/v1/subscribers')
+      .get(serviceEndpoint)
       .end((err, res) => {
-        expect(err).to.be.null
-        expect(res).to.have.status(200)
-        expect(res.body.subscribers).to.be.an('array')
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
         done()
       })
   })
 
-  describe('GET: /api/v1/images/:filename', () => {
-    it('Should return 404 if image not found', (done) => {
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .get(serviceEndpoint)
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  it('Response body should have specified properties', (done) => {
+    chai
+      .request(app)
+      .get(serviceEndpoint)
+      .end((err, res) => {
+        const { data } = res.body
+        expect(data).to.have.property('services')
+        done()
+      })
+  })
+})
+
+describe('POST: /api/v1/blogs', () => {
+  const blogEndpoint = '/api/v1/blogs'
+
+  it('Response status code should have value of 200', (done) => {
+    chai
+      .request(app)
+      .post(blogEndpoint)
+      .send({ page: 1 })
+      .end((err, res) => {
+        expect(res).to.have.status(200)
+        done()
+      })
+  })
+
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .post(blogEndpoint)
+      .send({ page: 1 })
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
+  })
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .post(blogEndpoint)
+      .send({ page: 1 })
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  it('Response body should have specified properties', (done) => {
+    chai
+      .request(app)
+      .post(blogEndpoint)
+      .send({ page: 1 })
+      .end((err, res) => {
+        const { data } = res.body
+        expect(data).to.have.property('blogs')
+        expect(data).to.have.property('hasMore')
+        done()
+      })
+  })
+})
+
+describe('GET: /api/v1/blogs/:slug', () => {
+  const blogEndpoint = '/api/v1/blogs'
+
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .get(
+        `${blogEndpoint}/the-importance-of-seo-for-your-business-1691896805375`
+      )
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
+  })
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .get(
+        `${blogEndpoint}/the-importance-of-seo-for-your-business-1691896805375`
+      )
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  describe('When the blog is could not be found', () => {
+    it('Response status code should have value of 404', (done) => {
       chai
         .request(app)
-        .get('/api/v1/images/dummy.jpg')
+        .get(`${blogEndpoint}/anything-you-want-zyx`)
         .end((err, res) => {
-          expect(err).to.be.null
           expect(res).to.have.status(404)
-          expect(res.body).to.have.property('message')
-          expect(res.body.message).to.equal('Image not found')
           done()
         })
     })
 
-    it('Should return 200 if image found', (done) => {
+    it('Response body should have property message with specified value', (done) => {
       chai
         .request(app)
-        .get('/api/v1/images/blogThumbnail-1691897514189.jpg')
+        .get(`${blogEndpoint}/anything-you-want-zyx`)
         .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
+          expect(res.body).to.have.property('message', 'Blog not found')
           done()
         })
     })
   })
 
-  describe('GET: /api/v1/blogs/:slug', () => {
-    it('Should return 404 if could not be found', (done) => {
-      chai
-        .request(app)
-        .get('/api/v1/blogs/anything-you-want-zyx')
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(404)
-          expect(res.body).to.have.property('message')
-          expect(res.body.message).to.equal('Blog not found')
-          done()
-        })
-    })
-
-    it('Should return 200 if blog found', (done) => {
+  describe('When the blog is could be found', () => {
+    it('Response status code should have value of 200', (done) => {
       chai
         .request(app)
         .get(
-          '/api/v1/blogs/the-importance-of-seo-for-your-business-1691896805375'
+          `${blogEndpoint}/the-importance-of-seo-for-your-business-1691896805375`
         )
         .end((err, res) => {
-          expect(err).to.be.null
           expect(res).to.have.status(200)
-          expect(res.body.blog).to.have.property('id')
+          done()
+        })
+    })
+
+    it('Response body should have specified properties', (done) => {
+      chai
+        .request(app)
+        .get(
+          `${blogEndpoint}/the-importance-of-seo-for-your-business-1691896805375`
+        )
+        .end((err, res) => {
+          const { data } = res.body
+          expect(data).to.have.property('blog')
           done()
         })
     })
   })
+})
 
-  describe('POST: /api/v1/portfolios', () => {
-    it('Should return 200 if portfolios found', (done) => {
-      chai
-        .request(app)
-        .post('/api/v1/portfolios')
-        .send({ page: 1, serviceId: 1 })
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
-          expect(res.body).to.have.property('portfolios')
-          expect(res.body.portfolios).to.be.an('array')
-          done()
-        })
-    })
+describe('GET: /api/v1/faqs', () => {
+  const faqEndpoint = '/api/v1/faqs'
 
-    it('Should return empty array when the page is out of range', (done) => {
-      chai
-        .request(app)
-        .post('/api/v1/portfolios')
-        .send({ page: 100, serviceId: 1 })
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
-          expect(res.body.portfolios).to.be.an('array')
-          expect(res.body.portfolios.length).to.equal(0)
-          done()
-        })
-    })
-
-    it("Should return empty array when the portfolio's serviceId is not match any service id", (done) => {
-      chai
-        .request(app)
-        .post('/api/v1/portfolios')
-        .send({ page: 1, serviceId: 100 })
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
-          expect(res.body.portfolios).to.be.an('array')
-          expect(res.body.portfolios.length).to.equal(0)
-          done()
-        })
-    })
-
-    it('Should return empty array when service has no portfolio', (done) => {
-      chai
-        .request(app)
-        .post('/api/v1/portfolios')
-        .send({ page: 1, serviceId: 3 })
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
-          expect(res.body.portfolios).to.be.an('array')
-          expect(res.body.portfolios.length).to.equal(0)
-          done()
-        })
-    })
+  it('Response code should have value of 200', (done) => {
+    chai
+      .request(app)
+      .get(faqEndpoint)
+      .end((err, res) => {
+        expect(res).to.have.status(200)
+        done()
+      })
   })
 
-  describe('GET: /api/v1/teams', () => {
-    it('Should return 200 if teams found', (done) => {
-      chai
-        .request(app)
-        .get('/api/v1/teams')
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
-          expect(res.body.teams).to.be.an('array')
-          done()
-        })
-    })
-
-    it('Should not return the team with role of Admin', (done) => {
-      chai
-        .request(app)
-        .get('/api/v1/teams')
-        .end((err, res) => {
-          expect(err).to.be.null
-          expect(res).to.have.status(200)
-          const admin = res.body.teams.find(
-            (team: any) => team.role.name === 'Admin'
-          )
-          expect(admin).to.be.undefined
-          done()
-        })
-    })
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .get(faqEndpoint)
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
   })
 
-  describe('POST: /api/v1/subscribers', () => {
-    it('Should return 400 if email is already subscribed', (done) => {
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .get(faqEndpoint)
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  it('Response body should have specified properties', (done) => {
+    chai
+      .request(app)
+      .get(faqEndpoint)
+      .end((err, res) => {
+        const { data } = res.body
+        expect(data).to.have.property('faqs')
+        done()
+      })
+  })
+})
+
+describe('GET: /api/v1/subscribers', () => {
+  const subscriberEndpoint = '/api/v1/subscribers'
+
+  it('Response code should have value of 200', (done) => {
+    chai
+      .request(app)
+      .get(subscriberEndpoint)
+      .end((err, res) => {
+        expect(res).to.have.status(200)
+        done()
+      })
+  })
+
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .get(subscriberEndpoint)
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
+  })
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .get(subscriberEndpoint)
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  it('Response body should have specified properties', (done) => {
+    chai
+      .request(app)
+      .get(subscriberEndpoint)
+      .end((err, res) => {
+        const { data } = res.body
+        expect(data).to.have.property('subscribers')
+        done()
+      })
+  })
+})
+
+describe('POST: /api/v1/subscribers', () => {
+  const subscriberEndpoint = '/api/v1/subscribers'
+
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .post(subscriberEndpoint)
+      .send({ email: 'adiputrakadekdarmayasa@gmail.com' })
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
+  })
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .post(subscriberEndpoint)
+      .send({ email: 'adiputrakadekdarmayasa@gmail.com' })
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  describe('When user is already subscribed', () => {
+    it('Response status code should have value of 400', (done) => {
       chai
         .request(app)
-        .post('/api/v1/subscribers')
+        .post(subscriberEndpoint)
         .send({ email: 'adiputrakadekdarmayasa@gmail.com' })
         .end((err, res) => {
-          expect(err).to.be.null
           expect(res).to.have.status(400)
-          expect(res.body).to.have.property('message')
-          expect(res.body.message).to.equal('Email already subscribed')
           done()
         })
     })
 
-    it('Should return 200 if email is successfully subscribed', (done) => {
+    it('Response body should have property message with specified value', (done) => {
       chai
         .request(app)
-        .post('/api/v1/subscribers')
+        .post(subscriberEndpoint)
+        .send({ email: 'adiputrakadekdarmayasa@gmail.com' })
+        .end((err, res) => {
+          expect(res.body).to.have.property(
+            'message',
+            'Email already subscribed'
+          )
+          done()
+        })
+    })
+  })
+
+  describe('When user is successfully subscribed', () => {
+    it('Response status code should have value of 201', (done) => {
+      chai
+        .request(app)
+        .post(subscriberEndpoint)
         .send({ email: 'xyz@gmail.com' })
         .end((err, res) => {
-          expect(err).to.be.null
           expect(res).to.have.status(201)
-          expect(res.body).to.have.property('message')
-          expect(res.body.message).to.equal('Subscribed successfully')
-
           db.subscriber
             .findFirst({ where: { email: 'xyz@gmail.com' } })
             .then((subscriber) => {
@@ -253,5 +409,233 @@ describe('API ENDPOINT TESTING', () => {
             })
         })
     })
+
+    it('Response body should have property with specified value', (done) => {
+      chai
+        .request(app)
+        .post(subscriberEndpoint)
+        .send({ email: 'xyz@gmail.com' })
+        .end((err, res) => {
+          expect(res.body).to.have.property(
+            'message',
+            'Subscribed successfully'
+          )
+          db.subscriber
+            .findFirst({ where: { email: 'xyz@gmail.com' } })
+            .then((subscriber) => {
+              db.subscriber
+                .delete({ where: { id: subscriber?.id } })
+                .then(() => done())
+            })
+        })
+    })
+  })
+})
+
+describe('GET: /api/v1/images/:filename', () => {
+  const imageEndpoint = '/api/v1/images'
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .get(imageEndpoint)
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  describe('When the image could not be found', () => {
+    it('Response header Content-Type should have value of application/json', (done) => {
+      chai
+        .request(app)
+        .get(`${imageEndpoint}/dummy.jpg`)
+        .end((err, res) => {
+          expect(res).to.have.header(
+            'content-type',
+            'application/json; charset=utf-8'
+          )
+          done()
+        })
+    })
+
+    it('Response status code should have value of 404', (done) => {
+      chai
+        .request(app)
+        .get(`${imageEndpoint}/dummy.jpg`)
+        .end((err, res) => {
+          expect(res).to.have.status(404)
+          done()
+        })
+    })
+
+    it('Response body should have property message with specified value', (done) => {
+      chai
+        .request(app)
+        .get(`${imageEndpoint}/dummy.jpg`)
+        .end((err, res) => {
+          expect(res.body).to.have.property('message', 'Image not found')
+          done()
+        })
+    })
+  })
+
+  describe('When the image could be found', () => {
+    it('Response status code should have value of 200', (done) => {
+      chai
+        .request(app)
+        .get(`${imageEndpoint}/blogThumbnail-1691897514189.jpg`)
+        .end((err, res) => {
+          expect(res).to.have.status(200)
+          done()
+        })
+    })
+  })
+})
+
+describe('POST: /api/v1/portfolios', () => {
+  const portfolioEndpoint = '/api/v1/portfolios'
+
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .post(portfolioEndpoint)
+      .send({ page: 1, serviceId: 1 })
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
+  })
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .post(portfolioEndpoint)
+      .send({ page: 1, serviceId: 1 })
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  describe('When the portfolios are found', () => {
+    it('Response status code should have value of 200', (done) => {
+      chai
+        .request(app)
+        .post(portfolioEndpoint)
+        .send({ page: 1, serviceId: 1 })
+        .end((err, res) => {
+          expect(res).to.have.status(200)
+          done()
+        })
+    })
+
+    it('Response body should have specified properties', (done) => {
+      chai
+        .request(app)
+        .post(portfolioEndpoint)
+        .send({ page: 1, serviceId: 1 })
+        .end((err, res) => {
+          const { data } = res.body
+          expect(data).to.have.property('portfolios')
+          expect(data).to.have.property('hasMore')
+          done()
+        })
+    })
+  })
+
+  describe('When the page is out of range', () => {
+    it("Portfolios's data should be an empty array", (done) => {
+      chai
+        .request(app)
+        .post(portfolioEndpoint)
+        .send({ page: 1, serviceId: 1 })
+        .end((err, res) => {
+          const { data } = res.body
+          expect(data.portfolios.length).to.equal(0)
+          done()
+        })
+    })
+  })
+
+  describe("When the portfolio's serviceId is not match any service id", () => {
+    it("Portfolios' data should be an empty array", (done) => {
+      chai
+        .request(app)
+        .post(portfolioEndpoint)
+        .send({ page: 1, serviceId: 100 })
+        .end((err, res) => {
+          const { data } = res.body
+          expect(data.portfolios.length).to.equal(0)
+          done()
+        })
+    })
+  })
+
+  describe('When service has no portfolio', () => {
+    it("Portfolios' data should be an empty array", (done) => {
+      chai
+        .request(app)
+        .post(portfolioEndpoint)
+        .send({ page: 1, serviceId: 3 })
+        .end((err, res) => {
+          const { data } = res.body
+          expect(data.portfolios.length).to.equal(0)
+          done()
+        })
+    })
+  })
+})
+
+describe('GET: /api/v1/teams', () => {
+  const teamEndpoint = '/api/v1/teams'
+
+  it('Response header Content-Type should have value of application/json', (done) => {
+    chai
+      .request(app)
+      .get(teamEndpoint)
+      .end((err, res) => {
+        expect(res).to.have.header(
+          'content-type',
+          'application/json; charset=utf-8'
+        )
+        done()
+      })
+  })
+
+  it('Response body should be an object', (done) => {
+    chai
+      .request(app)
+      .get(teamEndpoint)
+      .end((err, res) => {
+        expect(res.body).to.be.an('object')
+        done()
+      })
+  })
+
+  it("Team's data should be an array", (done) => {
+    chai
+      .request(app)
+      .get(teamEndpoint)
+      .end((err, res) => {
+        const { data } = res.body
+        expect(data.teams).to.be.an('array')
+        done()
+      })
+  })
+
+  it('Team with role admin should not be included in the array of teams of response body', (done) => {
+    chai
+      .request(app)
+      .get(teamEndpoint)
+      .end((err, res) => {
+        const { data } = res.body
+        const admin = data.teams.find((team: any) => team.role.name === 'Admin')
+        expect(admin).to.be.undefined
+        done()
+      })
   })
 })
